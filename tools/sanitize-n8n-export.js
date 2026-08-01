@@ -21,18 +21,24 @@ const path = require('path');
 // Google file/folder IDs: 25+ chars of base64url. Long enough not to collide with
 // ordinary words, which a shorter bound would.
 const GOOGLE_ID = /\b[A-Za-z0-9_-]{25,}\b/g;
+const GMAIL_LABEL = /\bLabel_[0-9]{6,}\b/g;
 const SLACK_CHANNEL = /\bC[A-Z0-9]{8,}\b/g;
 const SLACK_TEAM = /\bT[A-Z0-9]{8,}\b/g;
 // Non-capturing on purpose: RULES below relies on exactly one capture group per rule.
 const BEARERISH = /\b(?:fc-|sk-|xox[baprs]-|ghp_|gho_)[A-Za-z0-9_-]{10,}/g;
+// Real addresses leak both the person and the domain. `@` is outside the ID character
+// class, so nothing else in this file would ever catch one.
+const EMAIL = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/g;
 
 const PLACEHOLDER = {
   credentialId: 'REPLACE_WITH_YOUR_CREDENTIAL_ID',
   webhookId: 'REPLACE_WITH_YOUR_WEBHOOK_ID',
   googleId: 'REPLACE_WITH_YOUR_GOOGLE_FILE_ID',
+  gmailLabel: 'REPLACE_WITH_YOUR_GMAIL_LABEL_ID',
   slackChannel: 'REPLACE_WITH_YOUR_SLACK_CHANNEL_ID',
   slackTeam: 'REPLACE_WITH_YOUR_SLACK_TEAM_ID',
   token: 'REPLACE_WITH_YOUR_TOKEN',
+  email: 'REPLACE_WITH_YOUR_EMAIL',
   workflowId: 'REPLACE_WITH_YOUR_WORKFLOW_ID',
   dataTableId: 'REPLACE_WITH_YOUR_DATA_TABLE_ID',
 };
@@ -41,6 +47,7 @@ const PLACEHOLDER = {
 // enough that a generic long-token regex misses them. They have to be matched by the
 // key they sit under, not by their shape.
 const N8N_RESOURCE_KEYS = new Set(['workflowId', 'dataTableId']);
+const STRUCTURAL_KEYS = new Set(['id', 'type']);
 const isIdShaped = (s) =>
   /^[A-Za-z0-9_-]{16,}$/.test(s) || /^C[A-Z0-9]{8,}$/.test(s);
 
@@ -63,8 +70,13 @@ const review = [];
 // Google ids are listed before Slack ids deliberately: a real Slack channel (~11 chars)
 // can never satisfy the 25-char minimum, but a long all-caps Google id could otherwise
 // be swallowed by the Slack rule.
+// Email is listed before the id rules so a long local part or domain can't be eaten
+// piecemeal by GOOGLE_ID. Gmail label ids likewise precede GOOGLE_ID, which would
+// otherwise swallow them and mislabel them as Drive files.
 const RULES = [
   { kind: 'token', re: BEARERISH, placeholder: PLACEHOLDER.token },
+  { kind: 'email', re: EMAIL, placeholder: PLACEHOLDER.email },
+  { kind: 'gmail label', re: GMAIL_LABEL, placeholder: PLACEHOLDER.gmailLabel },
   { kind: 'google id', re: GOOGLE_ID, placeholder: PLACEHOLDER.googleId },
   { kind: 'slack channel', re: SLACK_CHANNEL, placeholder: PLACEHOLDER.slackChannel },
   { kind: 'slack team', re: SLACK_TEAM, placeholder: PLACEHOLDER.slackTeam },
@@ -72,12 +84,23 @@ const RULES = [
 
 const COMBINED = new RegExp(RULES.map((r) => `(${r.re.source})`).join('|'), 'g');
 
+// A long run of lowercase-and-underscores is a snake_case identifier, not an opaque id:
+// Supabase's `match_documents_gadgets_more` clears GOOGLE_ID's 25-char bar purely by
+// being descriptive. Real Drive/Slack ids are base64url and effectively always carry a
+// digit or a capital. Redacting these names would strip information the export exists to
+// document, so they pass through — but they still get surfaced for a human to confirm.
+const isDescriptiveName = (s) => /^[a-z][a-z_]*$/.test(s);
+
 function scrubString(s) {
   if (typeof s !== 'string') return s;
   return s.replace(COMBINED, (match, ...groups) => {
     // groups[i] is defined for whichever alternative matched.
     const i = groups.findIndex((g, idx) => idx < RULES.length && g !== undefined);
     const rule = RULES[i] || RULES[RULES.length - 1];
+    if (rule.kind === 'google id' && isDescriptiveName(match)) {
+      review.push(`descriptive name kept as-is: "${match}"`);
+      return match;
+    }
     note(rule.kind, match);
     return rule.placeholder;
   });
@@ -104,6 +127,21 @@ function walk(node) {
     if (key === 'webhookId') {
       note('webhookId', value);
       out[key] = PLACEHOLDER.webhookId;
+      continue;
+    }
+
+    // Structural keys, never instance data — and every one of them is long enough to
+    // trip GOOGLE_ID, which would quietly corrupt the export:
+    //   `id`   canvas-local UUIDs. Meaningless off this instance, but they must stay
+    //          DISTINCT; collapsing them to one placeholder makes n8n reject the import
+    //          on duplicate ids.
+    //   `type` node types like `...langchain.textSplitterRecursiveCharacterTextSplitter`.
+    //          The word boundary falls after the final dot, so the bare type name is
+    //          matched on its own and the node becomes an unresolvable type.
+    // The genuinely sensitive `id`s live under `credentials` and the top-level workflow
+    // id, both handled separately.
+    if (STRUCTURAL_KEYS.has(key) && typeof value === 'string') {
+      out[key] = value;
       continue;
     }
 

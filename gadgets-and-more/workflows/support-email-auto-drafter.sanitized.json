@@ -1,0 +1,422 @@
+{
+  "name": "Gadgets & More - Support Email Auto-Drafter",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 15,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "filters": {
+          "q": "-label:ai-drafted to:REPLACE_WITH_YOUR_EMAIL",
+          "readStatus": "unread"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        304
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your gmailOAuth2 credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Email from: {{ $json.From }}\nSubject: {{ $json.Subject }}\n\nBody:\n{{ $json.text || $json.snippet }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a customer support assistant for Gadgets & More Electronics. Today's date is {{ $now.format('DDDD, LLLL d, yyyy') }}.\n\nYou will be shown an inbound customer email (sender, subject, body) that was sent to the store's technical support inbox. Your job:\n1. Decide which of these three cases applies:\n   a. SUPPORT QUESTION - the email is a customer support question about returns, repairs, warranties, exchanges, shipping, billing/subscriptions, gift cards, privacy, or general store policy. Set isSupportQuestion=true, shouldReply=true.\n   b. MISDIRECTED INQUIRY - the email is a genuine message from a real person or business that expects a reply, but isn't a support question in the categories above (e.g. a sales question, a vendor/partnership inquiry, a job application, a question meant for another department, or any other real correspondence that landed in the wrong inbox). Set isSupportQuestion=false, shouldReply=true, category=\"misdirected\".\n   c. NO REPLY NEEDED - spam, a newsletter, a marketing blast, an automated notification/receipt, or anything else that isn't a genuine message expecting a human reply. Set isSupportQuestion=false, shouldReply=false, category=\"other\", draftReply to an empty string.\n2. For case (a), use the \"search_store_policies\" tool to look up the relevant official policy details before answering.\n   - Ground your answer ONLY in what the tool returns - never invent timelines, fees, or terms it doesn't mention.\n   - Use the fallback below whenever the tool returns nothing relevant, OR returns policy text that doesn't actually cover this specific situation (e.g. a repair request needing a technician to inspect the device, an edge case the general policy text doesn't address, or no matching policy at all). If you're not sure the retrieved text truly answers the question, treat it as no match - a warm handoff beats a guessed answer.\n   - Fallback (no match): NEVER mention tools, systems, databases, access, or anything technical - the customer must never sense this is automated. Write it like a normal human teammate handing this off: acknowledge their specific issue warmly and confidently, let them know you're looping in a team member who can get them the exact answer and will personally follow up, then ask for whatever specifics would speed that up - typically: order number or a photo of the receipt (or the name/email used to purchase), purchase date, whether it was bought online or in-store, the product model and serial number if available, a brief description of the issue, and whether the original packaging/accessories are still available. Offer to try basic troubleshooting in the meantime if relevant. Confident and helpful in tone - never apologetic about a system limitation, and never robotic or templated-sounding.\n   Set confidenceRating to 'strong' if the tool returned specific info (timelines, fees, eligibility, etc.) that directly and fully answers the question, or 'medium' if it returned relevant but only general/partial info requiring some interpretation. Set confidenceRating to 'low' whenever the fallback above is used, or for case (b) or case (c).\n3. For case (b), do NOT call search_store_policies - write a short, warm redirect instead: reference their specific topic or ask so it's clear you read the email, let them know this inbox is our technical support team and isn't the right fit for their request, and reassure them you're looping in the right team who will reach out to them directly and get them taken care of right away. Don't guess at what the correct team will say, and don't promise a specific timeline beyond \"shortly\" / \"right away\".\n4. Write the draft reply (for both case (a) and case (b)) like a warm, attentive front-desk person who actually read the email, not a template:\n   - Open with the customer's first name if it's derivable from the sender name or a signature in the body (e.g. \"Hi Sarah,\"); otherwise use a friendly general greeting (\"Hi there,\") - never \"Dear Customer\" or \"Dear Valued Customer.\"\n   - Reference something specific from their email in the first line or two (the product, the issue, the order, or the topic of their request) so it's clear you read it, not a form letter.\n   - Use natural, conversational language: contractions (I'll, we're, that's), varied sentence length, everyday words over corporate phrasing (\"happy to help\" instead of \"we are writing to inform you\", \"no worries\" instead of \"we apologize for any inconvenience this may cause\").\n   - Show empathy proportional to the situation - a brief, genuine acknowledgment of frustration or inconvenience for real problems, without being saccharine for routine questions.\n   - Keep it concise - a real person doesn't over-explain. One or two short paragraphs plus next steps, not a wall of text.\n   - Close warmly and personally, e.g. \"Let me know if there's anything else I can help with!\" rather than a generic \"Thank you for your patience.\"\n   Sign every reply \"Warmly,\\nThe Gadgets & More Electronics Support Team\".",
+          "maxIterations": 15
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "name": "Support Email Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        320,
+        304
+      ],
+      "retryOnFail": true,
+      "maxTries": 2
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000003",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        128,
+        528
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000004",
+      "name": "OpenAI Fixer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        784
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"isSupportQuestion\": {\n      \"type\": \"boolean\",\n      \"description\": \"Whether the email is a customer support question about returns, repairs, warranties, exchanges, shipping, billing, gift cards, privacy, or store policy (case a).\"\n    },\n    \"shouldReply\": {\n      \"type\": \"boolean\",\n      \"description\": \"Whether a draft reply should be created at all. True for genuine support questions (case a) and genuine misdirected inquiries that expect a human reply (case b). False for spam, newsletters, marketing, or automated notifications that don't need a reply (case c).\"\n    },\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\"returns\", \"repairs\", \"warranty\", \"exchanges\", \"billing\", \"shipping\", \"privacy\", \"misdirected\", \"other\"]\n    },\n    \"draftReply\": {\n      \"type\": \"string\",\n      \"description\": \"The drafted reply text - the policy-grounded support answer for case (a), or the polite redirect message for case (b). Empty string if shouldReply is false.\"\n    },\n    \"confidenceRating\": {\n      \"type\": \"string\",\n      \"enum\": [\"strong\", \"medium\", \"low\"],\n      \"description\": \"How well the retrieved policy documentation supports this answer. 'strong' = search_store_policies returned specific info (timelines, fees, eligibility, etc.) that directly and fully answers the question. 'medium' = it returned relevant policy info but only general or partial coverage of the specific situation, requiring some interpretation. 'low' = no matching policy was found and the reply uses the human-escalation phrasing, or the email is a misdirected inquiry (case b), or shouldReply is false.\"\n    }\n  },\n  \"required\": [\"isSupportQuestion\", \"shouldReply\", \"category\", \"draftReply\", \"confidenceRating\"]\n}",
+        "autoFix": true
+      },
+      "id": "b1000000-0000-4000-8000-000000000005",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        624,
+        544
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Look up Gadgets & More Electronics' official policies on returns, repairs, billing/subscriptions, gift cards, and privacy. Input should be a fully formed question about store policy.",
+        "tableName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "documents_gadgets_more"
+        },
+        "options": {
+          "queryName": "match_documents_gadgets_more",
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "department",
+                "value": "technical_support"
+              }
+            ]
+          }
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000006",
+      "name": "Search Store Policies",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        704
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your supabaseApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000007",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        880
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond1",
+              "leftValue": "={{ $json.output.shouldReply }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000008",
+      "name": "Is Support Question?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        704,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=Re: {{ $('Gmail Trigger').item.json.Subject }}",
+        "message": "={{ $json.output.draftReply }}\n\nWarmly,\nThe Gadgets & More Electronics Support Team",
+        "options": {
+          "threadId": "={{ $('Gmail Trigger').item.json.threadId }}",
+          "sendTo": "={{ $('Gmail Trigger').item.json.From }}"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000009",
+      "name": "Create Draft Reply",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        224
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your gmailOAuth2 credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "REPLACE_WITH_YOUR_GMAIL_LABEL_ID"
+        ]
+      },
+      "id": "b1000000-0000-4000-8000-000000000010",
+      "name": "Mark as AI-Drafted",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        224
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your gmailOAuth2 credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "tech-email-response"
+        },
+        "text": "=New AI-drafted reply ready for review\n\n*From:* {{ $('Gmail Trigger').item.json.From }}\n*Subject:* {{ $('Gmail Trigger').item.json.Subject }}\n*Category:* {{ $('Support Email Agent').item.json.output.category }}\n\n*Draft reply:*\n{{ $('Support Email Agent').item.json.output.draftReply }}\n\n<https://mail.google.com/mail/u/0/#all/{{ $('Gmail Trigger').item.json.threadId }}|Open in Gmail to review & send>\n\n{{ ({strong:'🟢', medium:'🟡', low:'🔴'})[$('Support Email Agent').item.json.output.confidenceRating] }} *Confidence:* {{ $('Support Email Agent').item.json.output.confidenceRating.charAt(0).toUpperCase() + $('Support Email Agent').item.json.output.confidenceRating.slice(1) }}",
+        "otherOptions": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000011",
+      "name": "Post Alert to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1408,
+        224
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Support Email Agent": {
+      "main": [
+        [
+          {
+            "node": "Is Support Question?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Support Email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Search Store Policies",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Fixer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Support Email Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Store Policies": {
+      "ai_tool": [
+        [
+          {
+            "node": "Support Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Search Store Policies",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Support Question?": {
+      "main": [
+        [
+          {
+            "node": "Create Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Mark as AI-Drafted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark as AI-Drafted": {
+      "main": [
+        [
+          {
+            "node": "Post Alert to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Support Email Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "binaryMode": "separate"
+  },
+  "tags": []
+}

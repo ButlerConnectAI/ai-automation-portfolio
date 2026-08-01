@@ -25,6 +25,23 @@ a prompt rule didn't stop it, and the schema-level fix that did.
 **Stack:** n8n · OpenAI · Firecrawl · Slack · Google Drive/Docs APIs · Data Tables ·
 built with Claude Code
 
+### [Gadgets & More](./gadgets-and-more) — policy-grounded support email drafting
+
+Two n8n workflows for a retail support desk. A nightly job keeps a Supabase vector store
+in sync with the policy documents in Google Drive; a polled agent reads the support inbox,
+answers strictly from what it retrieves, and leaves a Gmail draft in-thread for a human to
+review — it never sends. Low-confidence answers are flagged as such in Slack rather than
+dressed up as certainty.
+
+The parts worth reading are the ones that make an unattended loop safe: the Gmail label
+that is simultaneously the trigger filter and the loop guard, the
+[three-way triage](./gadgets-and-more#design-decisions-worth-explaining) that declines to
+reply at all, and the idempotent re-ingest that keeps a nightly rebuild from quietly
+filling the knowledge base with duplicates.
+
+**Stack:** n8n · OpenAI · Supabase pgvector · Postgres · Gmail/Drive APIs · Slack ·
+built with Claude Code
+
 ## How I build
 
 - **Claude Code** — design and build, end to end. Everything in this repo.
