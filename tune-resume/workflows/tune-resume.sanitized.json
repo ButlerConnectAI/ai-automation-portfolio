@@ -1,0 +1,2694 @@
+{
+  "name": "Tune-Resume · JD to Tailored Resume",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Tune-Resume Channel",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        608
+      ],
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f1",
+              "leftValue": "={{ !$json.bot_id && !$json.app_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f2",
+              "leftValue": "={{ !$json.subtype || $json.subtype === 'file_share' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f3",
+              "leftValue": "={{ ($json.files || []).length > 0 || ($json.text || '').trim().length >= 120 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Ignore Bot & Noise",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        608
+      ],
+      "notes": "Anti-loop guard. Without the bot_id check the workflow's own thread replies re-trigger it."
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r1",
+                    "leftValue": "={{ ($json.files || []).length > 0 }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "file"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r2",
+                    "leftValue": "={{ /docs\\.google\\.com\\/document\\/d\\//.test($json.text || '') }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "gdocLink"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "r3",
+                    "leftValue": "={{ /https?:\\/\\//.test($json.text || '') }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "jobUrl"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "pastedText"
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Route Input Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        608
+      ],
+      "notes": "Order matters: a file beats a link, a Google Doc link beats the generic scraper."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p1",
+              "name": "source",
+              "value": "slackFile",
+              "type": "string"
+            },
+            {
+              "id": "p2",
+              "name": "fileName",
+              "value": "={{ $json.files[0].name }}",
+              "type": "string"
+            },
+            {
+              "id": "p3",
+              "name": "mimeType",
+              "value": "={{ $json.files[0].mimetype }}",
+              "type": "string"
+            },
+            {
+              "id": "p4",
+              "name": "url",
+              "value": "={{ $json.files[0].url_private_download }}",
+              "type": "string"
+            },
+            {
+              "id": "p5",
+              "name": "driveFileId",
+              "value": "",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Prepare Slack File",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        272
+      ],
+      "notes": "First attachment only."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1",
+              "name": "source",
+              "value": "driveFile",
+              "type": "string"
+            },
+            {
+              "id": "d2",
+              "name": "fileName",
+              "value": "Job description (Google Doc link)",
+              "type": "string"
+            },
+            {
+              "id": "d3",
+              "name": "mimeType",
+              "value": "application/vnd.google-apps.document",
+              "type": "string"
+            },
+            {
+              "id": "d4",
+              "name": "url",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "d5",
+              "name": "driveFileId",
+              "value": "={{ (($json.text || '').match(/docs\\.google\\.com\\/document\\/d\\/([A-Za-z0-9_-]+)/) || [])[1] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Prepare Drive Link",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_WORKFLOW_ID",
+          "mode": "list",
+          "cachedResultName": "REPLACE_WITH_YOUR_WORKFLOW_ID"
+        },
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Convert JD File To Text",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        352
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v2/scrape",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ url: ($json.text || '').replace(/[<>]/g, ' ').split(/\\s+/).find(t => t.startsWith('http')).split('|')[0], formats: ['markdown'], onlyMainContent: true }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Scrape Job Posting",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        720,
+        640
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your httpHeaderAuth credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "SET ME: select the Firecrawl API header-auth credential (Authorization: Bearer fc-...)."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "su1",
+              "leftValue": "={{ ($json.data?.markdown || '').length >= 400 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Scrape Usable?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        640
+      ],
+      "notes": "Blocked or login-walled pages return a thin shell. Catch it rather than tailoring against a cookie banner."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "nsf1",
+              "name": "failureReason",
+              "value": "I couldn't read that link — many job boards (LinkedIn and Indeed especially) block scrapers or require a login.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Note Scrape Failure",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "n1",
+              "name": "jdText",
+              "value": "={{ ($json.extractedText || $json.data?.markdown || $json.text || '').trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "n2",
+              "name": "extractionOk",
+              "value": "={{ $json.ok !== false }}",
+              "type": "boolean"
+            },
+            {
+              "id": "n3",
+              "name": "extractionError",
+              "value": "={{ $json.error || '' }}",
+              "type": "string"
+            },
+            {
+              "id": "n4",
+              "name": "threadTs",
+              "value": "={{ $('Tune-Resume Channel').first().json.ts }}",
+              "type": "string"
+            },
+            {
+              "id": "n5",
+              "name": "slackChannel",
+              "value": "={{ $('Tune-Resume Channel').first().json.channel }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Normalize JD",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1248,
+        480
+      ],
+      "notes": "Converge point for all four input routes. One expression covers sub-workflow output, scrape output, and pasted text."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "es1",
+              "leftValue": "={{ $json.extractionOk && $json.jdText.length >= 100 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Extraction Succeeded?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1472,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "nef1",
+              "name": "failureReason",
+              "value": "={{ $json.extractionError || 'I could not pull a job description out of that message — it was too short or the file could not be read.' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Note Extraction Failure",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1712,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": ":hourglass_flowing_sand: Got the job description — reading your resume material, tailoring a draft, then benchmarking it against the market. I'll come back here in about 90 seconds with recommendations for you to approve before anything is published.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Acknowledge In Thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        1712,
+        480
+      ],
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'REPLACE_WITH_YOUR_GOOGLE_FILE_ID' in parents and trashed = false",
+        "returnAll": true,
+        "filter": {},
+        "options": {
+          "fields": [
+            "id",
+            "name",
+            "mimeType"
+          ]
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "List Resume Source Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1952,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ssf1",
+              "leftValue": "={{ ['application/vnd.google-apps.document','application/pdf','text/plain','text/markdown','application/vnd.REPLACE_WITH_YOUR_GOOGLE_FILE_ID.wordprocessingml.document','application/msword','application/rtf','application/vnd.oasis.opendocument.text'].includes($json.mimeType) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ssf2",
+              "leftValue": "={{ !(/^README/i.test($json.name || '') || /(AGENT_INSTRUCTIONS|STYLE_RULES|SAMPLE_RESUME)/i.test($json.name || '')) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Supported Source Files",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        2160,
+        480
+      ],
+      "notes": "Two gates: supported mime type AND not a scaffolding file. Instructions, style rules, the sample resume and README are guidance, not career facts - feeding them to the writer as evidence risks fabricated history."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "psf1",
+              "name": "source",
+              "value": "driveFile",
+              "type": "string"
+            },
+            {
+              "id": "psf2",
+              "name": "fileName",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "psf3",
+              "name": "mimeType",
+              "value": "={{ $json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "psf4",
+              "name": "url",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "psf5",
+              "name": "driveFileId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Prepare Source File",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2384,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_WORKFLOW_ID",
+          "mode": "list",
+          "cachedResultName": "REPLACE_WITH_YOUR_WORKFLOW_ID"
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Convert Source File To Text",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        2608,
+        480
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "mode=each: one sub-workflow call per source file. continueRegularOutput so one unreadable file doesn't kill the run."
+    },
+    {
+      "parameters": {
+        "jsCode": "const MAX_CHARS = 150000;\nconst SIMILARITY_THRESHOLD = 0.9;\n\n// Near-duplicate, not exact: the same facts file exported as a Google Doc and as\n// markdown differs in bullet glyphs, line endings and heading markers, and one copy\n// is usually a few edits behind the other. Trigram Jaccard sees through all of that.\nconst shingles = (s) => {\n  const w = (s.toLowerCase().match(/[a-z0-9]+/g) || []);\n  const set = new Set();\n  for (let i = 0; i + 2 < w.length; i++) set.add(w[i] + ' ' + w[i + 1] + ' ' + w[i + 2]);\n  return set;\n};\n\nconst jaccard = (a, b) => {\n  if (!a.size || !b.size) return 0;\n  let shared = 0;\n  for (const s of a) if (b.has(s)) shared++;\n  return shared / (a.size + b.size - shared);\n};\n\nconst skipped = [];\nconst candidates = [];\n\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const name = j.fileName || 'unnamed file';\n  const text = (j.extractedText || '').trim();\n\n  if (j.ok === false || !text) {\n    skipped.push(name + (j.error ? ' (' + j.error + ')' : ''));\n    continue;\n  }\n\n  candidates.push({ name, text, shingles: shingles(text) });\n}\n\n// Longest first so that when two copies are near-identical the fuller one survives.\ncandidates.sort((a, b) => b.text.length - a.text.length);\n\nconst kept = [];\nfor (const c of candidates) {\n  const dupeOf = kept.find(k => jaccard(k.shingles, c.shingles) >= SIMILARITY_THRESHOLD);\n  if (dupeOf) {\n    skipped.push(c.name + ' (near-duplicate of ' + dupeOf.name + ' - kept the longer copy)');\n    continue;\n  }\n  kept.push(c);\n}\n\nlet corpus = '';\nconst included = [];\n\nfor (const c of kept) {\n  const block = '\\n\\n===== SOURCE FILE: ' + c.name + ' =====\\n' + c.text;\n  if (corpus.length + block.length > MAX_CHARS) {\n    skipped.push(c.name + ' (skipped - corpus size limit reached)');\n    continue;\n  }\n  corpus += block;\n  included.push(c.name);\n}\n\nif (!corpus.trim()) {\n  throw new Error('No readable resume material was found in the Google Drive source folder. Add a Google Doc, PDF, Word doc, or .txt file to it and try again.');\n}\n\nreturn [{ json: { corpus: corpus.trim(), includedFiles: included, skippedFiles: skipped } }];"
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Build Resume Corpus",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2832,
+        480
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "text": "=JOB DESCRIPTION\n{{ $('Normalize JD').first().json.jdText.replace(/[{}]/g, ' ') }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL\n{{ $json.corpus.replace(/[{}]/g, ' ') }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"company\": { \"type\": \"string\", \"description\": \"Hiring company name. Use 'Unknown Company' if not stated.\" },\n    \"role_title\": { \"type\": \"string\", \"description\": \"The job title being advertised. Use 'Unknown Role' if not stated.\" },\n    \"location\": { \"type\": \"string\", \"description\": \"Work location or remote policy. Empty string if not stated.\" },\n    \"must_have_requirements\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"Hard requirements the posting treats as mandatory.\" },\n    \"keywords\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"Skills, tools and domain terms an ATS would scan for, in the posting's own wording.\" },\n    \"matched_strengths\": { \"type\": \"array\", \"items\": { \"type\": \"object\", \"properties\": { \"requirement\": { \"type\": \"string\" }, \"evidence\": { \"type\": \"string\", \"description\": \"Direct evidence from the candidate source material only. Never invent.\" } }, \"required\": [\"requirement\", \"evidence\"] }, \"description\": \"Requirements genuinely evidenced in the candidate source material.\" },\n    \"gaps\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"Requirements with no supporting evidence in the candidate source material.\" },\n    \"match_score\": { \"type\": \"number\", \"description\": \"0-100 estimate of how well the candidate material matches this posting.\" }\n  },\n  \"required\": [\"company\", \"role_title\", \"must_have_requirements\", \"keywords\", \"matched_strengths\", \"gaps\", \"match_score\"]\n}",
+        "options": {
+          "systemPromptTemplate": "You compare a job description against a candidate's real career material. Extract only what is actually present. Every entry in matched_strengths must cite concrete evidence found in the candidate source material — if you cannot cite it, it belongs in gaps instead. Never invent employers, titles, dates, metrics, certifications or skills."
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Analyze JD Against Profile",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        3072,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0,
+          "timeout": 120000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Analysis Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3072,
+        704
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write the tailored resume for this application.\n\nTARGET COMPANY: {{ $json.output.company }}\nTARGET ROLE: {{ $json.output.role_title }}\n\nMUST-HAVE REQUIREMENTS FROM THE POSTING:\n{{ ($json.output.must_have_requirements || []).join('\\n') }}\n\nEVIDENCED STRENGTHS TO LEAD WITH - the fact comes first, the requirement it happens to answer is in brackets. Write from the fact, never from the bracket:\n{{ ($json.output.matched_strengths || []).map(m => m.evidence + '  [answers: ' + m.requirement + ']').join('\\n') }}\n\nKNOWN GAPS (do NOT paper over these, simply omit them):\n{{ ($json.output.gaps || []).join('\\n') }}\n\nFULL JOB DESCRIPTION:\n{{ $('Normalize JD').first().json.jdText.replace(/[{}]/g, ' ') }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL — THE ONLY FACTS YOU MAY USE:\n{{ $('Build Resume Corpus').first().json.corpus.replace(/[{}]/g, ' ') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert resume writer. Today is {{ $now.toFormat('yyyy-MM-dd') }}.\n\nYou rewrite a candidate's resume so it targets one specific job description, using ONLY facts that appear in the candidate source material you are given.\n\nHARD RULES — these are not stylistic preferences:\n- Never invent or alter an employer, job title, employment date, degree, certification, metric or skill. If it is not in the source material, it does not go in the resume.\n- If a must-have requirement is not evidenced in the source material, omit it entirely. Do not imply it, do not hedge it, do not pad around it. It is reported to the candidate as a gap separately.\n- You may reorder, reweight, condense, and reword real experience.\n- On terminology: you may use the posting's word for a thing ONLY where the source material already describes that same thing in equivalent terms. Matching vocabulary for a fact the candidate demonstrably has is good. Adopting the posting's vocabulary for a fact they do not have is fabrication.\n- Never copy a sentence or phrase out of the job description into a bullet. A resume that echoes the posting's own wording reads as keyword-stuffed to any recruiter who wrote that posting. Write every bullet from the candidate source material in your own plain language.\n- Lead with the experience most relevant to this posting. Prune detail that is irrelevant to this role.\n\nSTRUCTURE: name and contact line, then Professional Summary, Core Skills, Professional Experience (reverse chronological, action-verb bullets with outcomes where the source material states them), then Education and any certifications.\n\nOUTPUT FORMAT — read carefully, your raw response is written straight to a file:\n- Output semantic HTML only. Use h1 for the candidate name, then a single p for the contact line immediately after it, h2 for section headings, ul and li for bullets, and strong for employers and job titles.\n- Wrap every role header in its own p element - never leave it as loose text between a heading and a list. Exactly this shape: <p><strong>Employer</strong> - Title<br>Location &nbsp;|&nbsp; Dates</p>\n- No markdown. No code fences. No style or script tags. No commentary before or after the HTML. No explanation of what you did.\n- Single column only. No tables, no multi-column layouts, no text boxes — applicant tracking systems fail to parse them.\n- Do not use curly brace characters anywhere in the output."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Write Tailored Resume",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        3328,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 8000,
+          "temperature": 0.3,
+          "timeout": 300000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Writer Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        3328,
+        704
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bfn3",
+              "name": "companyFolder",
+              "value": "={{ (($('Parse Approval Response').first().json.company || '').trim() || 'Unknown Company').replace(/[\\\\/:*?\"<>|]/g, '-').slice(0, 120) }}",
+              "type": "string"
+            },
+            {
+              "id": "bfn1",
+              "name": "baseName",
+              "value": "={{ ($('Parse Approval Response').first().json.roleTitle + ' - Resume - ' + $now.toFormat('yyyy-MM-dd')).replace(/[\\\\/:*?\"<>|]/g, '-').slice(0, 180) }}",
+              "type": "string"
+            },
+            {
+              "id": "bfn2",
+              "name": "resumeHtml",
+              "value": "={{ $json.resumeHtml.replace(/^```html/i, '').replace(/```$/, '').trim() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Build File Name",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        6192,
+        480
+      ],
+      "notes": "Strips stray code fences as a belt-and-braces guard - the HTML is uploaded verbatim. companyFolder is the Drive subfolder; baseName drops the company since the folder already says it."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.googleapis.com/upload/drive/v3/files?uploadType=media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/html; charset=UTF-8",
+        "body": "={{ $('Build File Name').first().json.resumeHtml }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Upload Resume HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        7312,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Temp HTML file in Drive root, deleted at the end of the run."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.id }}/copy",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ mimeType: 'application/vnd.google-apps.document', name: $('Build File Name').first().json.baseName }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Convert Resume To Google Doc",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        7536,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Drive's HTML importer turns h1/h2/ul/strong into real Doc styling on copy."
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Convert Resume To Google Doc').first().json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/vnd.REPLACE_WITH_YOUR_GOOGLE_FILE_ID.wordprocessingml.document"
+            }
+          }
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Export As Word",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        7760,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Build File Name').first().json.baseName }}.docx",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Resolve Output Folder').first().json.outputFolderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Save Word To Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        7984,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Convert Resume To Google Doc').first().json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Export As PDF",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        8208,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('Build File Name').first().json.baseName }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Resolve Output Folder').first().json.outputFolderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Save PDF To Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        8432,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Upload Resume HTML').first().json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Delete Temp HTML",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        8656,
+        480
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "deleteFile",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $('Convert Resume To Google Doc').first().json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Delete Temp Google Doc",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        8880,
+        480
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Parse Approval Response').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": "=:white_check_mark: *{{ $('Parse Approval Response').first().json.roleTitle }}* at *{{ $('Parse Approval Response').first().json.company }}* — tailored resume ready.\n\n:page_facing_up: <https://drive.google.com/file/d/{{ $('Save Word To Drive').first().json.id }}/view|Word (.docx)>   •   :books: <https://drive.google.com/file/d/{{ $('Save PDF To Drive').first().json.id }}/view|PDF>\n\n*Match score:* {{ $('Parse Approval Response').first().json.matchScore }}/100   •   *Review score:* {{ $('Parse Approval Response').first().json.overallScore }}/100\n\n{{ $('Select Final Resume').first().json.revisionApplied ? '*All ' + $('Parse Approval Response').first().json.approvedCount + ' recommendations applied:*\\n' + $('Select Final Resume').first().json.appliedRecs : ($('Parse Approval Response').first().json.approvalFlag === null ? ':warning: _Slack sent no approval signal back, so I published the original draft untouched. The gate needs looking at._' : '_Published the original draft — you chose to skip the recommendations._') }}\n\n*Evidenced strengths I led with:*\n{{ ($('Parse Approval Response').first().json.matchedStrengths || []).map(m => '• ' + m).join('\\n') || '• none identified' }}\n\n*Gaps — the posting asks for these and I found no evidence, so I left them out:*\n{{ ($('Parse Approval Response').first().json.gaps || []).map(g => '• ' + g).join('\\n') || '• none' }}\n\n_Built from: {{ ($('Parse Approval Response').first().json.includedFiles || []).join(', ') }}_{{ ($('Parse Approval Response').first().json.skippedFiles || []).length ? '\\n_Skipped: ' + $('Parse Approval Response').first().json.skippedFiles.join(', ') + '_' : '' }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Parse Approval Response').first().json.threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Post Result In Thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        9104,
+        480
+      ],
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Tune-Resume Channel').isExecuted ? $('Tune-Resume Channel').first().json.channel : JSON.parse($('Restore Review State').first().json.payload || '{}').slackChannel }}",
+          "mode": "id"
+        },
+        "text": "=:warning: I couldn't finish that one.\n\n*What happened:* {{ $json.failureReason || $json.error?.message || $json.error || 'Unknown error' }}\n\nYou can paste the job description as text, or drop it as a PDF, Word doc, or Google Doc link.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Tune-Resume Channel').isExecuted ? $('Tune-Resume Channel').first().json.ts : JSON.parse($('Restore Review State').first().json.payload || '{}').threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Report Failure In Thread",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        6128,
+        1072
+      ],
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Single converge point for every error output, on both sides of the approval gate. Pre-gate callers still have the trigger; post-gate callers only have the restored Data Table row, hence the isExecuted fallback."
+    },
+    {
+      "parameters": {
+        "jsCode": "const a = $('Analyze JD Against Profile').first().json.output || {};\nconst role = String(a.role_title || '').trim();\nconst location = String(a.location || '').trim();\n\n// 'Unknown Role' is the extractor's documented fallback - don't search for it literally.\nconst subject = (role && role !== 'Unknown Role') ? role : 'this job';\n\nreturn [\n  {\n    json: {\n      purpose: 'postings',\n      query: (subject + ' job description requirements responsibilities ' + location).trim().slice(0, 500),\n      scrape: true,\n      limit: 5,\n    },\n  },\n  {\n    json: {\n      purpose: 'rubric',\n      query: (subject + ' resume best practices what recruiters look for ATS keywords').slice(0, 500),\n      scrape: false,\n      limit: 5,\n    },\n  },\n];"
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Build Research Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        480
+      ],
+      "notes": "Fans 1 item out to 2 search queries. The HTTP node runs per-item automatically - no Loop Over Items needed."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v2/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.scrape ? { query: $json.query, limit: $json.limit, scrapeOptions: { formats: ['markdown'], onlyMainContent: true } } : { query: $json.query, limit: $json.limit }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Firecrawl Market Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3792,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 3000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your httpHeaderAuth credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Reuses the same Firecrawl header-auth credential as Scrape Job Posting. Only the postings query pays for scraping. Failure is non-fatal - the critique degrades to model knowledge."
+    },
+    {
+      "parameters": {
+        "jsCode": "const MAX_CORPUS = 40000;\nconst MAX_RUBRIC = 8000;\n\nconst queries = $('Build Research Queries').all();\nconst results = $input.all();\nconst jd = $('Analyze JD Against Profile').first().json.output || {};\nconst keywords = (jd.keywords || []).map(k => String(k).trim()).filter(Boolean).slice(0, 25);\n\nconst webResults = (item) => {\n  const data = item && item.json && item.json.data;\n  return data && Array.isArray(data.web) ? data.web : [];\n};\n\nlet postings = [];\nlet rubrics = [];\nfor (let i = 0; i < results.length; i++) {\n  const purpose = (queries[i] && queries[i].json && queries[i].json.purpose) || (i === 0 ? 'postings' : 'rubric');\n  if (purpose === 'postings') postings = webResults(results[i]);\n  else rubrics = webResults(results[i]);\n}\n\nconst blobs = postings.map(r => [r.markdown, r.description, r.title].filter(Boolean).join(' ').toLowerCase());\nconst keywordFrequency = keywords.map(kw => ({\n  keyword: kw,\n  postingsMentioning: blobs.filter(b => b.includes(kw.toLowerCase())).length,\n  ofPostings: blobs.length,\n}));\n\nlet marketCorpus = '';\nfor (const r of postings) {\n  const body = String(r.markdown || r.description || '').trim();\n  if (!body) continue;\n  const block = '\\n\\n===== REPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTING: ' + (r.title || r.url || 'untitled') + ' =====\\n' + body;\n  if (marketCorpus.length + block.length > MAX_CORPUS) break;\n  marketCorpus += block;\n}\n\nlet rubricNotes = '';\nfor (const r of rubrics) {\n  const block = '\\n- ' + String(r.title || '').trim() + ': ' + String(r.description || '').trim();\n  if (rubricNotes.length + block.length > MAX_RUBRIC) break;\n  rubricNotes += block;\n}\n\nreturn [{\n  json: {\n    researchOk: postings.length > 0 || rubrics.length > 0,\n    postingsFound: postings.length,\n    rubricsFound: rubrics.length,\n    keywordFrequency,\n    marketCorpus: marketCorpus.trim(),\n    rubricNotes: rubricNotes.trim(),\n  },\n}];"
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Build Market Baseline",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4016,
+        480
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Counts keyword demand across comparable postings mechanically, so the reviewer cites a fact rather than a guess. Never throws - degrades to researchOk=false."
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 4000,
+          "temperature": 0.2,
+          "timeout": 180000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Critique Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        4240,
+        784
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"overall_score\": { \"type\": \"number\", \"description\": \"0-100. How competitive this draft is for this specific posting given the market evidence.\" },\n    \"verdict\": { \"type\": \"string\", \"description\": \"One sentence: is this a strong, adequate or weak resume for this role, and why.\" },\n    \"market_evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"Concrete findings from the comparable postings and published guidance, e.g. 'Terraform appears in 5/5 comparable postings'. State explicitly if research was unavailable.\" },\n    \"strengths\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"What this draft already does well relative to the market.\" },\n    \"weaknesses\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"Genuine gaps, including ones the candidate cannot fix from existing material.\" },\n    \"recommendations\": {\n      \"type\": \"array\",\n      \"minItems\": 0,\n      \"maxItems\": 8,\n      \"description\": \"Ranked by hiring impact, highest first. Each must be actionable on this draft using only the candidate source material, and each must carry a source_quote proving the claim already exists there.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"title\": { \"type\": \"string\", \"description\": \"Short imperative label, max 90 characters, e.g. 'Lead the summary with Kubernetes'.\" },\n          \"detail\": { \"type\": \"string\", \"description\": \"Exactly what to change and why, referencing the market evidence.\" },\n          \"impact\": { \"type\": \"string\", \"enum\": [\"high\", \"medium\", \"low\"] },\n          \"source_quote\": { \"type\": \"string\", \"description\": \"Verbatim text copied from the REPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL that already supports this change. Must appear character-for-character in the source material - copy it, do not paraphrase. If no such text exists, this is not a recommendation: report it under weaknesses instead.\" }\n        },\n        \"required\": [\"title\", \"detail\", \"impact\", \"source_quote\"]\n      }\n    }\n  },\n  \"required\": [\"overall_score\", \"verdict\", \"market_evidence\", \"strengths\", \"weaknesses\", \"recommendations\"]\n}",
+        "autoFix": true
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Critique Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        4448,
+        784
+      ],
+      "notes": "autoFix is on and the fixer slot reuses Analysis Model - one malformed JSON response would otherwise halt the run."
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Review this resume draft before it goes to the candidate.\n\nTARGET ROLE: {{ $('Analyze JD Against Profile').first().json.output.role_title }}\nTARGET COMPANY: {{ $('Analyze JD Against Profile').first().json.output.company }}\n\nMARKET RESEARCH STATUS: {{ $json.researchOk ? ('OK - ' + $json.postingsFound + ' comparable postings and ' + $json.rubricsFound + ' resume guides retrieved') : 'UNAVAILABLE - critique from the job description and your own knowledge only, and say so plainly in market_evidence' }}\n\nKEYWORD DEMAND ACROSS REPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTINGS (counted mechanically - treat these as fact):\n{{ ($json.keywordFrequency || []).map(k => k.keyword + ': ' + k.postingsMentioning + '/' + k.ofPostings + ' postings').join('\\n') || '(no counts available)' }}\n\nPUBLISHED RESUME GUIDANCE FOUND:\n{{ $json.rubricNotes || '(none retrieved)' }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTINGS CORPUS:\n{{ ($json.marketCorpus || '(none retrieved)').replace(/[{}]/g, ' ') }}\n\nTHE JOB DESCRIPTION THIS RESUME TARGETS:\n{{ $('Normalize JD').first().json.jdText.replace(/[{}]/g, ' ') }}\n\nKNOWN GAPS - THE DRAFT OMITS THESE DELIBERATELY AND REPLACE_WITH_YOUR_SLACK_CHANNEL_ID. NEVER RECOMMEND ADDING THEM BACK:\n{{ ($('Analyze JD Against Profile').first().json.output.gaps || []).join('\\n') || '(none identified)' }}\n\nTHE RESUME DRAFT TO CRITIQUE (HTML):\n{{ $('Write Tailored Resume').first().json.text.replace(/[{}]/g, ' ') }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL - THE ONLY FACTS THAT EXIST:\n{{ $('Build Resume Corpus').first().json.corpus.replace(/[{}]/g, ' ') }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are a hiring-side resume reviewer. Today is {{ $now.format('yyyy-MM-dd') }}.\n\nYou judge one resume draft against (a) the specific job description it targets and (b) evidence about what this role's market actually asks for, drawn from comparable live job postings and published resume guidance.\n\nHARD RULES - these are not stylistic preferences:\n- Every recommendation must be actionable on THIS draft using ONLY facts present in the candidate source material, and every recommendation must carry a source_quote: verbatim text copied from the REPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL that already states the claim. Copy it character-for-character. Do not paraphrase it, do not summarise it, do not stitch fragments from different places into one quote. If you cannot produce such a quote, you do not have a recommendation.\n- Never recommend adding a PHRASE, CLAIM or FRAMING the source material does not already state. This is much broader than skills and titles, and it is the failure mode you are most likely to fall into. If the source material never says the candidate did product management, then 'add the phrase Product Management and roadmap ownership experience' is a fabrication, not a keyword fix - and no keyword count makes it one. The same applies to strategy, productization, roadmap ownership, revenue ownership, or any other responsibility named by the posting but absent from the source material.\n- A keyword appearing in N of M comparable postings is a reason to surface an EXISTING fact more prominently: move it earlier, give it its own bullet, or describe a thing the candidate demonstrably did using the market's word for it. It is NEVER a reason to assert a new one. Keyword frequency measures market demand, not candidate evidence.\n- Never recommend appending a phrase to a bullet that already conveys it. Read the draft bullet first. If the meaning is already there, the recommendation is to rewrite that bullet, not to bolt a phrase onto the end of it.\n- The KNOWN GAPS list in the prompt was produced upstream from this same source material and is authoritative. Never write a recommendation that reintroduces anything on it. Those omissions are correct.\n- If the market demands something the candidate genuinely lacks, that is a weakness to report - not a recommendation.\n- Your market evidence is job postings and published guidance. You have NOT read other candidates' resumes and must never imply that you have.\n- The keyword counts you are given were computed mechanically. Cite them as given. Do not invent counts.\n- Be specific and diagnostic. 'Improve the summary' is useless. 'Move Kubernetes into the first line of the summary - it appears in 5/5 comparable postings but is currently buried in the third bullet of your 2019 role' is useful.\n- Rank recommendations by hiring impact, highest first. Return at most 8, and return ONLY those you can back with a source_quote. There is no minimum. Returning two well-evidenced recommendations - or none at all, if the draft already represents the source material faithfully - is a correct and expected outcome. Never pad the list to look thorough; a padded list is how unsupported claims get onto a resume.\n- Each recommendation's detail must be SELF-REPLACE_WITH_YOUR_SLACK_CHANNEL_ID. The writer who applies it sees only the draft and your detail text - never the candidate source material. So when a change needs a fact that exists in the source material but is not yet in the draft, quote that fact verbatim inside the detail.\n- Score honestly. A draft that omits most of what the market asks for is not a 75."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Benchmark & Critique",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        4240,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const c = ($input.first().json || {}).output || {};\nconst recs = Array.isArray(c.recommendations) ? c.recommendations : [];\n\nconst numbered = recs.map((r, i) => {\n  const impact = String(r.impact || 'medium').toLowerCase();\n  const title = String(r.title || 'Untitled recommendation').replace(/\\s+/g, ' ').trim().slice(0, 90);\n  const quote = String(r.source_quote || '').replace(/\\s+/g, ' ').trim().slice(0, 200);\n  const detail = String(r.detail || '').trim();\n  return {\n    n: i + 1,\n    impact,\n    title,\n    sourceQuote: quote,\n    // The quote rides inside detail because Apply Approved Revisions only ever sees\n    // title + detail - it never receives the corpus, so this is its only evidence.\n    detail: quote\n      ? detail + '\\nSOURCE QUOTE (verbatim from the candidate material): \"' + quote + '\"'\n      : detail + '\\nNO SOURCE QUOTE SUPPLIED - this recommendation is unverified. Do not add any claim it implies.',\n    label: (i + 1) + '. [' + impact.toUpperCase() + '] ' + title,\n  };\n});\n\nif (!numbered.length) {\n  numbered.push({\n    n: 1,\n    impact: 'low',\n    title: 'No changes recommended',\n    sourceQuote: '',\n    detail: 'The reviewer found nothing worth changing in this draft.',\n    label: '1. [LOW] No changes recommended',\n  });\n}\n\n// Same nested shape the Fields UI produces - the JSON mode is not a flatter format.\nconst formFields = [\n  {\n    fieldLabel: 'Which recommendations should I apply?',\n    fieldType: 'checkbox',\n    fieldOptions: { values: numbered.map(r => ({ option: r.label })) },\n    requiredField: false,\n  },\n  {\n    fieldLabel: 'Anything else you want changed?',\n    fieldType: 'textarea',\n    placeholder: 'Optional - e.g. keep the 2016 helpdesk role, or cut it to one page',\n    requiredField: false,\n  },\n];\n\nconst jd = $('Analyze JD Against Profile').first().json.output || {};\nconst corpusMeta = $('Build Resume Corpus').first().json || {};\nconst norm = $('Normalize JD').first().json || {};\n\n// Everything downstream of the approval gate reads this blob out of the Data Table\n// instead of $('UpstreamNode'). n8n does not restore pre-pause run data when a\n// sendAndWait execution resumes, so cross-gate node references silently break.\nconst payload = {\n  draftHtml: $('Write Tailored Resume').first().json.text || '',\n  recommendations: numbered,\n  overallScore: c.overall_score === undefined ? null : c.overall_score,\n  verdict: c.verdict || '',\n  company: jd.company || 'Unknown Company',\n  roleTitle: jd.role_title || 'Unknown Role',\n  matchScore: jd.match_score === undefined ? null : jd.match_score,\n  matchedStrengths: (jd.matched_strengths || []).map(m => m.requirement),\n  gaps: jd.gaps || [],\n  includedFiles: corpusMeta.includedFiles || [],\n  skippedFiles: corpusMeta.skippedFiles || [],\n  slackChannel: norm.slackChannel || '',\n  threadTs: norm.threadTs || '',\n};\n\nreturn [{\n  json: {\n    overallScore: payload.overallScore,\n    verdict: payload.verdict,\n    marketEvidence: c.market_evidence || [],\n    strengths: c.strengths || [],\n    weaknesses: c.weaknesses || [],\n    recommendations: numbered,\n    recommendationCount: numbered.length,\n    recommendationSummary: ((s) => s.length > 2800 ? s.slice(0, 2800) + '\\n\\n_(truncated - full list is in the thread)_' : s)(numbered.map(r => '*' + r.label + '*\\n' + r.detail).join('\\n\\n')),\n    formJson: JSON.stringify(formFields),\n    payload: JSON.stringify(payload),\n  },\n}];"
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Format Recommendations",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4496,
+        480
+      ],
+      "notes": "Builds the Slack summary and the dynamic approval form. The form is sized to the actual recommendation count via defineForm=json."
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Normalize JD').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": "=:mag: *Resume review — {{ $('Analyze JD Against Profile').first().json.output.role_title }} at {{ $('Analyze JD Against Profile').first().json.output.company }}*\n\n*Score:* {{ $json.overallScore }}/100\n{{ $json.verdict }}\n\n*What this market actually asks for:*\n{{ ($json.marketEvidence || []).map(e => '• ' + e).join('\\n') || '• no market data retrieved' }}\n\n*Working well:*\n{{ ($json.strengths || []).map(s => '• ' + s).join('\\n') || '• none noted' }}\n\n*Weak spots:*\n{{ ($json.weaknesses || []).map(w => '• ' + w).join('\\n') || '• none noted' }}\n\n*Recommendations — tick the ones you want in the form below:*\n\n{{ $json.recommendationSummary }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Normalize JD').first().json.threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Post Critique Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        4720,
+        480
+      ],
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Kept separate from the approval gate so the full critique stays readable in the thread after the form expires."
+    },
+    {
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Normalize JD').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "message": "=:ballot_box_with_check: Apply the {{ $('Format Recommendations').first().json.recommendationCount }} recommendation(s) above to your *{{ $('Format Recommendations').first().json.roleTitle || $('Analyze JD Against Profile').first().json.output.role_title }}* resume?",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "=Apply all {{ $('Format Recommendations').first().json.recommendationCount }}",
+            "disapproveLabel": "Skip, publish as-is"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 24
+            }
+          },
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Normalize JD').first().json.threadTs }}"
+            }
+          }
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Review & Approve Recommendations",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        4944,
+        480
+      ],
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Approve-all / Skip. Note $json here is the Post Critique Summary Slack response, NOT Format Recommendations - always reference Format Recommendations explicitly. Requires the Data Table stash/restore either side; n8n drops pre-pause run data on resume."
+    },
+    {
+      "parameters": {
+        "jsCode": "// State comes from the Data Table, never from $('UpstreamNode') - n8n drops all\n// pre-pause run data when a sendAndWait execution resumes.\nconst row = $input.first().json || {};\n\nlet state = {};\ntry {\n  state = JSON.parse(row.payload || '{}');\n} catch (e) {\n  state = {};\n}\n\nif (!state.draftHtml) {\n  throw new Error('Could not restore the review state for execution ' + $execution.id + '. The resume draft is unavailable, so nothing was published.');\n}\n\nconst recs = state.recommendations || [];\n\n// The gate node itself IS restored on resume - it is the entry point - so this\n// reference is safe where pre-gate ones are not.\nconst raw = $('Review & Approve Recommendations').first().json || {};\n\n// responseType 'approval' reports the choice as a boolean. Versions differ on\n// whether it lands under .data or at the top level, so check both. Anything that\n// is not an explicit true counts as skip, which publishes the draft untouched.\nconst flag = (raw.data && raw.data.approved !== undefined) ? raw.data.approved : raw.approved;\nconst approvedAll = flag === true || flag === 'true';\n\nconst approved = approvedAll ? recs : [];\n\nreturn [{\n  json: {\n    ...state,\n    approved,\n    approvedCount: approved.length,\n    freeText: '',\n    hasChanges: approved.length > 0,\n    approvalFlag: flag === undefined ? null : flag,\n    rawFormResponse: raw,\n  },\n}];"
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Parse Approval Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5168,
+        480
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Unpacks the stashed state and the form response into one flat object. Every node after the gate reads from THIS node, never from a pre-gate node. Throws if the state row is missing rather than publishing an empty resume."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ap1",
+              "leftValue": "={{ $json.hasChanges }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Any Changes Approved?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5392,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Revise the resume draft below by applying ONLY the changes listed. Leave everything else exactly as it is.\n\nCHANGES THE REPLACE_WITH_YOUR_SLACK_CHANNEL_ID APPROVED:\n{{ ($json.approved || []).map(r => r.n + '. ' + r.title + ' -- ' + r.detail).join('\\n\\n') || '(none - apply only the additional instructions below)' }}\n\n{{ $json.freeText ? 'ADDITIONAL INSTRUCTIONS FROM THE REPLACE_WITH_YOUR_SLACK_CHANNEL_ID (these win if they conflict with the numbered changes):\\n' + $json.freeText : '' }}\n\nTHE DRAFT TO REVISE (HTML) - ITS CONTENTS PLUS THE CHANGE DETAILS ABOVE ARE THE ONLY FACTS YOU MAY USE:\n{{ ($json.draftHtml || '').replace(/[{}]/g, ' ') }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an expert resume writer applying a specific, approved set of edits to an existing resume draft. Today is {{ $now.toFormat('yyyy-MM-dd') }}.\n\nHARD RULES - these are not stylistic preferences:\n- Apply only the listed changes. Do not make unrelated 'improvements'. Anything not covered by a listed change must survive the revision unchanged in substance.\n- Your ONLY sources of fact are the draft itself and any facts quoted inside the change details. You do not have the candidate's full source material. Never invent or alter an employer, job title, employment date, degree, certification, metric or skill. If a change would require a fact you cannot see, skip that change rather than fabricating one.\n- If an instruction conflicts with what the draft says, keep what the draft says.\n\nOUTPUT FORMAT - read carefully, your raw response is written straight to a file:\n- Output semantic HTML only. Use h1 for the candidate name, then a single p for the contact line immediately after it, h2 for section headings, ul and li for bullets, and strong for employers and job titles.\n- Wrap every role header in its own p element - never leave it as loose text between a heading and a list. Exactly this shape: <p><strong>Employer</strong> - Title<br>Location &nbsp;|&nbsp; Dates</p>\n- No markdown. No code fences. No style or script tags. No commentary before or after the HTML. No explanation of what you changed.\n- Single column only. No tables, no multi-column layouts, no text boxes - applicant tracking systems fail to parse them.\n- Do not use curly brace characters anywhere in the output."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Apply Approved Revisions",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        5616,
+        320
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput",
+      "notes": "Reuses Writer Model. Carries the same no-fabrication rules as the original writer - an approved recommendation is still not a licence to invent."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sf1",
+              "name": "resumeHtml",
+              "value": "={{ $json.text || $('Parse Approval Response').first().json.draftHtml }}",
+              "type": "string"
+            },
+            {
+              "id": "sf2",
+              "name": "revisionApplied",
+              "value": "={{ !!$json.text }}",
+              "type": "boolean"
+            },
+            {
+              "id": "sf3",
+              "name": "appliedRecs",
+              "value": "={{ ($('Parse Approval Response').first().json.approved || []).map(r => '• ' + r.title).join('\\n') }}",
+              "type": "string"
+            },
+            {
+              "id": "sf4",
+              "name": "reviewScore",
+              "value": "={{ $('Parse Approval Response').first().json.overallScore }}",
+              "type": "string"
+            },
+            {
+              "id": "sf5",
+              "name": "extraInstructions",
+              "value": "={{ $('Parse Approval Response').first().json.freeText || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Select Final Resume",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5904,
+        480
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Converge point for the approved and skipped branches. The skipped branch carries no .text, so it falls back to the original draft."
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_DATA_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "REPLACE_WITH_YOUR_DATA_TABLE_ID"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "executionId": "={{ $execution.id }}",
+            "payload": "={{ $json.payload }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Stash Review State",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        4608,
+        688
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput",
+      "notes": "Writes everything the post-gate nodes need, keyed on execution ID. This is what makes the approval gate survive - n8n drops pre-pause run data on resume."
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_DATA_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "REPLACE_WITH_YOUR_DATA_TABLE_ID"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "executionId",
+              "keyValue": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Restore Review State",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        5056,
+        688
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput",
+      "notes": "First node after the gate. Reads back the row this execution stashed - the only way post-gate nodes can see pre-gate data."
+    },
+    {
+      "parameters": {
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_DATA_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "REPLACE_WITH_YOUR_DATA_TABLE_ID"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "executionId",
+              "keyValue": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Delete Review State",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        9328,
+        480
+      ],
+      "onError": "continueRegularOutput",
+      "notes": "Housekeeping - the stashed row holds the full draft HTML and is dead weight once the files are published."
+    },
+    {
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ \"name = '\" + $('Build File Name').first().json.companyFolder.replace(/'/g, \"\\\\'\") + \"' and 'REPLACE_WITH_YOUR_GOOGLE_FILE_ID' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false\" }}"
+            },
+            {
+              "name": "fields",
+              "value": "files(id,name)"
+            },
+            {
+              "name": "pageSize",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Find Company Folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        6416,
+        480
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Exact-name lookup for the company subfolder inside the output folder. Apostrophes in the company name are escaped for the Drive query syntax."
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cfe1",
+              "leftValue": "={{ ($json.files || []).length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Company Folder Exists?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        6640,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('Build File Name').first().json.companyFolder }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Create Company Folder",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        6864,
+        672
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Only runs the first time a company is seen."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rof1",
+              "name": "outputFolderId",
+              "value": "={{ $json.files ? $json.files[0].id : $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Resolve Output Folder",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7088,
+        480
+      ],
+      "notes": "Converge point for the found and created branches. The search response carries .files, the create response carries a top-level .id."
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $input.first().json || {};\n\n// Verified against Drive's HTML->Docs importer (see notes): single font name only,\n// styled <p> instead of headings, <hr> instead of border-bottom.\nconst F = 'Calibri';\nconst CSS = {\n  name:     'text-align:center;font-family:' + F + ';font-size:20pt;font-weight:700;color:#111111;margin:0 0 1pt 0;',\n  contact:  'text-align:center;font-family:' + F + ';font-size:9.5pt;color:#444444;margin:0 0 8pt 0;',\n  section:  'font-family:' + F + ';font-size:11pt;font-weight:700;color:#111111;margin:11pt 0 3pt 0;',\n  hr:       'margin:1pt 0 3pt 0;',\n  role:     'font-family:' + F + ';font-size:10.5pt;font-weight:700;color:#111111;margin:6pt 0 0 0;',\n  rolemeta: 'font-family:' + F + ';font-size:9pt;font-style:italic;color:#555555;margin:0 0 2pt 0;',\n  body:     'font-family:' + F + ';font-size:10pt;color:#222222;margin:0 0 3pt 0;text-align:left;',\n  ul:       'margin:0 0 3pt 0;padding-left:16pt;',\n  ol:       'margin:0 0 3pt 0;padding-left:16pt;',\n  li:       'font-family:' + F + ';font-size:10pt;color:#222222;margin:0;',\n  a:        'color:#1155cc;text-decoration:none;',\n};\n\n// Uppercase text nodes without mangling entities - &amp; must not become &AMP;.\nconst upperTextNodes = (s) => s.replace(/(^|>)([^<]+)/g, (m, pre, txt) =>\n  pre + txt.replace(/&[a-z]+;|&#\\d+;|[\\s\\S]/gi, (t) => (t.length > 1 ? t : t.toUpperCase())));\n\n// 1. Sanitize - we control the document wrapper, so drop anything the model emitted.\nlet body = String(src.resumeHtml || '')\n  .replace(/^﻿/, '')\n  .replace(/^\\s*```[a-z]*\\s*/i, '')\n  .replace(/\\s*```\\s*$/, '')\n  .replace(/<!DOCTYPE[^>]*>/gi, '')\n  .replace(/<\\/?(?:html|head|body)\\b[^>]*>/gi, '')\n  .replace(/<style\\b[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<script\\b[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<meta\\b[^>]*>/gi, '')\n  .replace(/<title\\b[\\s\\S]*?<\\/title>/gi, '')\n  .trim();\n\n// 2. Role headers can arrive as loose inline content between a heading and its <ul>.\n//    Give any such orphan run a real block element before classifying.\nbody = body.replace(\n  /(^|<\\/(?:h1|h2|h3|h4|p|ul|ol|div)>)([\\s\\S]*?)(?=<(?:ul|ol|h1|h2|h3|h4|p|div)\\b|$)/gi,\n  (m, before, run) => { const t = run.trim(); return t ? before + '<p>' + t + '</p>' : before; }\n);\n\n// 3. Classify every paragraph, splitting role headers onto their own meta line.\nconst firstH2 = body.search(/<h2\\b/i);\nbody = body.replace(/<p\\b[^>]*>([\\s\\S]*?)<\\/p>/gi, (m, inner, offset) => {\n  const t = inner.trim();\n  if (!t) return '';\n  if (firstH2 !== -1 && offset < firstH2) return '<p style=\"' + CSS.contact + '\">' + t + '</p>';\n  if (/^<strong\\b/i.test(t)) {\n    const parts = t.split(/<br\\s*\\/?>/i);\n    const head = (parts.shift() || '').trim();\n    const meta = parts.join(' ').replace(/\\s+/g, ' ').trim();\n    return '<p style=\"' + CSS.role + '\">' + head + '</p>' +\n      (meta ? '<p style=\"' + CSS.rolemeta + '\">' + meta + '</p>' : '');\n  }\n  return '<p style=\"' + CSS.body + '\">' + t + '</p>';\n});\n\n// 4. Headings become styled paragraphs; the section rule becomes a native <hr>.\nbody = body.replace(/<h1\\b[^>]*>([\\s\\S]*?)<\\/h1>/gi,\n  (m, inner) => '<p style=\"' + CSS.name + '\">' + inner.trim() + '</p>');\nbody = body.replace(/<h([234])\\b[^>]*>([\\s\\S]*?)<\\/h\\1>/gi,\n  (m, lvl, inner) => '<p style=\"' + CSS.section + '\">' + upperTextNodes(inner.trim()) +\n    '</p>');\n\n// 5. Lists and links.\nfor (const tag of ['ul', 'ol', 'li', 'a']) {\n  body = body.replace(new RegExp('<' + tag + '\\\\b([^>]*)>', 'gi'), (m, attrs) => {\n    const kept = attrs.replace(/\\s*style\\s*=\\s*\"[^\"]*\"/gi, '');\n    return '<' + tag + kept + ' style=\"' + CSS[tag] + '\">';\n  });\n}\n\nconst doc = '<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body>' + body + '</body></html>';\n\nreturn [{ json: { ...src, resumeHtml: doc } }];"
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Style Resume HTML",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        6048,
+        480
+      ],
+      "onError": "continueErrorOutput",
+      "notes": "Injects all presentation, verified against Drive's real HTML->Docs importer. Deliberately emits styled <p> instead of <h1>/<h2>: Docs forces its Heading named-style size (18pt/24pt) onto those paragraphs and ignores inline font-size there, while a styled <p> round-trips exactly. Section rules are real <hr> elements - CSS border-bottom imports as a phantom bulleted line. Font must be a single family name; Docs does not resolve CSS font stacks."
+    },
+    {
+      "parameters": {
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Convert Resume To Google Doc').first().json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Read Doc Layout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        7600,
+        288
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Docs API. Needed to locate the section-heading paragraphs by their index range before applying borders."
+    },
+    {
+      "parameters": {
+        "jsCode": "const doc = $input.first().json || {};\n\n// 0.5in top/bottom, 0.6in left/right.\nconst requests = [{\n  updateDocumentStyle: {\n    documentStyle: {\n      marginTop: { magnitude: 36, unit: 'PT' },\n      marginBottom: { magnitude: 36, unit: 'PT' },\n      marginLeft: { magnitude: 43.2, unit: 'PT' },\n      marginRight: { magnitude: 43.2, unit: 'PT' },\n    },\n    fields: 'marginTop,marginBottom,marginLeft,marginRight',\n  },\n}];\n\n// Section headings are the 11pt bold all-caps paragraphs Style Resume HTML emits.\n// Name is 20pt, role headers 10.5pt, body 10pt - so size+bold is unambiguous.\nfor (const el of ((doc.body || {}).content || [])) {\n  const p = el.paragraph;\n  if (!p) continue;\n  const runs = (p.elements || []).filter(e => e.textRun);\n  if (!runs.length) continue;\n  const ts = runs[0].textRun.textStyle || {};\n  const size = ts.fontSize ? ts.fontSize.magnitude : null;\n  const text = runs.map(r => r.textRun.content).join('').replace(/\\n/g, '').trim();\n  if (!ts.bold || size !== 11 || !text || text !== text.toUpperCase()) continue;\n  requests.push({\n    updateParagraphStyle: {\n      range: { startIndex: el.startIndex, endIndex: el.endIndex },\n      paragraphStyle: {\n        borderBottom: {\n          color: { color: { rgbColor: { red: 0.6, green: 0.6, blue: 0.6 } } },\n          width: { magnitude: 1, unit: 'PT' },\n          padding: { magnitude: 2, unit: 'PT' },\n          dashStyle: 'SOLID',\n        },\n      },\n      fields: 'borderBottom',\n    },\n  });\n}\n\nreturn [{ json: { batchBody: JSON.stringify({ requests }), headingsRuled: requests.length - 1 } }];"
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Build Doc Style Requests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7744,
+        288
+      ],
+      "notes": "Page margins plus a real paragraph border under each section heading. Drive's HTML importer cannot do either: @page is ignored, and a CSS border-bottom imports as a phantom bulleted line. Applied to the document instead."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://docs.googleapis.com/v1/documents/{{ $('Convert Resume To Google Doc').first().json.id }}:batchUpdate",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.batchBody }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "name": "Apply Doc Styling",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        7888,
+        288
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Cosmetic - continueRegularOutput on purpose so a Docs API hiccup degrades the styling rather than losing the finished resume."
+    }
+  ],
+  "connections": {
+    "Tune-Resume Channel": {
+      "main": [
+        [
+          {
+            "node": "Ignore Bot & Noise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ignore Bot & Noise": {
+      "main": [
+        [
+          {
+            "node": "Route Input Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Input Type": {
+      "main": [
+        [
+          {
+            "node": "Prepare Slack File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Drive Link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape Job Posting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize JD",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Slack File": {
+      "main": [
+        [
+          {
+            "node": "Convert JD File To Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Drive Link": {
+      "main": [
+        [
+          {
+            "node": "Convert JD File To Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert JD File To Text": {
+      "main": [
+        [
+          {
+            "node": "Normalize JD",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Job Posting": {
+      "main": [
+        [
+          {
+            "node": "Scrape Usable?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Note Scrape Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Usable?": {
+      "main": [
+        [
+          {
+            "node": "Normalize JD",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Note Scrape Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Note Scrape Failure": {
+      "main": [
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize JD": {
+      "main": [
+        [
+          {
+            "node": "Extraction Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraction Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Note Extraction Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Note Extraction Failure": {
+      "main": [
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acknowledge In Thread": {
+      "main": [
+        [
+          {
+            "node": "List Resume Source Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Resume Source Files": {
+      "main": [
+        [
+          {
+            "node": "Supported Source Files",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supported Source Files": {
+      "main": [
+        [
+          {
+            "node": "Prepare Source File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Source File": {
+      "main": [
+        [
+          {
+            "node": "Convert Source File To Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Source File To Text": {
+      "main": [
+        [
+          {
+            "node": "Build Resume Corpus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Resume Corpus": {
+      "main": [
+        [
+          {
+            "node": "Analyze JD Against Profile",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analysis Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze JD Against Profile",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Critique Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze JD Against Profile": {
+      "main": [
+        [
+          {
+            "node": "Write Tailored Resume",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Writer Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Tailored Resume",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Apply Approved Revisions",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Tailored Resume": {
+      "main": [
+        [
+          {
+            "node": "Build Research Queries",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Resume HTML": {
+      "main": [
+        [
+          {
+            "node": "Convert Resume To Google Doc",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Resume To Google Doc": {
+      "main": [
+        [
+          {
+            "node": "Read Doc Layout",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export As Word": {
+      "main": [
+        [
+          {
+            "node": "Save Word To Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Word To Drive": {
+      "main": [
+        [
+          {
+            "node": "Export As PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export As PDF": {
+      "main": [
+        [
+          {
+            "node": "Save PDF To Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save PDF To Drive": {
+      "main": [
+        [
+          {
+            "node": "Delete Temp HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Temp HTML": {
+      "main": [
+        [
+          {
+            "node": "Delete Temp Google Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Temp Google Doc": {
+      "main": [
+        [
+          {
+            "node": "Post Result In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Research Queries": {
+      "main": [
+        [
+          {
+            "node": "Firecrawl Market Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firecrawl Market Search": {
+      "main": [
+        [
+          {
+            "node": "Build Market Baseline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Market Baseline": {
+      "main": [
+        [
+          {
+            "node": "Benchmark & Critique",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Critique Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Benchmark & Critique",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Critique Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Benchmark & Critique",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Benchmark & Critique": {
+      "main": [
+        [
+          {
+            "node": "Format Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Critique Summary": {
+      "main": [
+        [
+          {
+            "node": "Review & Approve Recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review & Approve Recommendations": {
+      "main": [
+        [
+          {
+            "node": "Restore Review State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Approval Response": {
+      "main": [
+        [
+          {
+            "node": "Any Changes Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Changes Approved?": {
+      "main": [
+        [
+          {
+            "node": "Apply Approved Revisions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Select Final Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Approved Revisions": {
+      "main": [
+        [
+          {
+            "node": "Select Final Resume",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Final Resume": {
+      "main": [
+        [
+          {
+            "node": "Style Resume HTML",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Recommendations": {
+      "main": [
+        [
+          {
+            "node": "Stash Review State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stash Review State": {
+      "main": [
+        [
+          {
+            "node": "Post Critique Summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Review State": {
+      "main": [
+        [
+          {
+            "node": "Parse Approval Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Result In Thread": {
+      "main": [
+        [
+          {
+            "node": "Delete Review State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build File Name": {
+      "main": [
+        [
+          {
+            "node": "Find Company Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Company Folder": {
+      "main": [
+        [
+          {
+            "node": "Company Folder Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Company Folder Exists?": {
+      "main": [
+        [
+          {
+            "node": "Resolve Output Folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Company Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Company Folder": {
+      "main": [
+        [
+          {
+            "node": "Resolve Output Folder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Output Folder": {
+      "main": [
+        [
+          {
+            "node": "Upload Resume HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Style Resume HTML": {
+      "main": [
+        [
+          {
+            "node": "Build File Name",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Failure In Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Doc Layout": {
+      "main": [
+        [
+          {
+            "node": "Build Doc Style Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Doc Style Requests": {
+      "main": [
+        [
+          {
+            "node": "Apply Doc Styling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Doc Styling": {
+      "main": [
+        [
+          {
+            "node": "Export As Word",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "executionTimeout": 900,
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true
+  },
+  "nodeGroups": [],
+  "tags": []
+}

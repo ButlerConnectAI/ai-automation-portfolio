@@ -23,7 +23,8 @@ const path = require('path');
 const GOOGLE_ID = /\b[A-Za-z0-9_-]{25,}\b/g;
 const SLACK_CHANNEL = /\bC[A-Z0-9]{8,}\b/g;
 const SLACK_TEAM = /\bT[A-Z0-9]{8,}\b/g;
-const BEARERISH = /\b(fc-|sk-|xox[baprs]-|ghp_|gho_)[A-Za-z0-9_-]{10,}/g;
+// Non-capturing on purpose: RULES below relies on exactly one capture group per rule.
+const BEARERISH = /\b(?:fc-|sk-|xox[baprs]-|ghp_|gho_)[A-Za-z0-9_-]{10,}/g;
 
 const PLACEHOLDER = {
   credentialId: 'REPLACE_WITH_YOUR_CREDENTIAL_ID',
@@ -54,13 +55,32 @@ const note = (kind, value) => {
 // leaks internal naming.
 const review = [];
 
+// One combined pass, not a chain of .replace() calls. Chaining is wrong here: the
+// placeholders are themselves long runs of [A-Za-z_], so a later rule happily matches
+// a placeholder an earlier rule just inserted and overwrites it — silently relabelling
+// every Slack channel as a Google file id. A single pass consumes each position once.
+//
+// Google ids are listed before Slack ids deliberately: a real Slack channel (~11 chars)
+// can never satisfy the 25-char minimum, but a long all-caps Google id could otherwise
+// be swallowed by the Slack rule.
+const RULES = [
+  { kind: 'token', re: BEARERISH, placeholder: PLACEHOLDER.token },
+  { kind: 'google id', re: GOOGLE_ID, placeholder: PLACEHOLDER.googleId },
+  { kind: 'slack channel', re: SLACK_CHANNEL, placeholder: PLACEHOLDER.slackChannel },
+  { kind: 'slack team', re: SLACK_TEAM, placeholder: PLACEHOLDER.slackTeam },
+];
+
+const COMBINED = new RegExp(RULES.map((r) => `(${r.re.source})`).join('|'), 'g');
+
 function scrubString(s) {
   if (typeof s !== 'string') return s;
-  return s
-    .replace(BEARERISH, (m) => (note('token', m), PLACEHOLDER.token))
-    .replace(SLACK_CHANNEL, (m) => (note('slack channel', m), PLACEHOLDER.slackChannel))
-    .replace(SLACK_TEAM, (m) => (note('slack team', m), PLACEHOLDER.slackTeam))
-    .replace(GOOGLE_ID, (m) => (note('google id', m), PLACEHOLDER.googleId));
+  return s.replace(COMBINED, (match, ...groups) => {
+    // groups[i] is defined for whichever alternative matched.
+    const i = groups.findIndex((g, idx) => idx < RULES.length && g !== undefined);
+    const rule = RULES[i] || RULES[RULES.length - 1];
+    note(rule.kind, match);
+    return rule.placeholder;
+  });
 }
 
 function walk(node) {
