@@ -33,7 +33,15 @@ const PLACEHOLDER = {
   slackTeam: 'REPLACE_WITH_YOUR_SLACK_TEAM_ID',
   token: 'REPLACE_WITH_YOUR_TOKEN',
   workflowId: 'REPLACE_WITH_YOUR_WORKFLOW_ID',
+  dataTableId: 'REPLACE_WITH_YOUR_DATA_TABLE_ID',
 };
+
+// n8n's own resource ids (workflows, data tables, credentials) are 16 chars — short
+// enough that a generic long-token regex misses them. They have to be matched by the
+// key they sit under, not by their shape.
+const N8N_RESOURCE_KEYS = new Set(['workflowId', 'dataTableId']);
+const isIdShaped = (s) =>
+  /^[A-Za-z0-9_-]{16,}$/.test(s) || /^C[A-Z0-9]{8,}$/.test(s);
 
 const findings = [];
 const note = (kind, value) => {
@@ -79,18 +87,23 @@ function walk(node) {
       continue;
     }
 
-    // A channelId that survived the ID regexes is a channel *name*, not an id.
+    // A channelId that is neither an expression nor ID-shaped is a channel *name*,
+    // which the shape-based regexes cannot distinguish from prose.
     if (key === 'channelId' && value && typeof value === 'object' && typeof value.value === 'string') {
       const v = value.value;
-      if (v && !v.startsWith('=') && !v.startsWith('REPLACE_WITH_')) {
+      if (v && !v.startsWith('=') && !isIdShaped(v)) {
         review.push(`channel name at channelId: "${v}"`);
       }
     }
 
-    // Sub-workflow references point at another workflow on the same instance.
-    if (key === 'workflowId' && value && typeof value === 'object' && 'value' in value) {
-      note('sub-workflow ref', value.value);
-      out[key] = { ...value, value: PLACEHOLDER.workflowId };
+    // Sub-workflow and data-table references point at resources on the same instance.
+    if (N8N_RESOURCE_KEYS.has(key) && value && typeof value === 'object' && 'value' in value) {
+      note(`${key} ref`, value.value);
+      const placeholder = key === 'workflowId' ? PLACEHOLDER.workflowId : PLACEHOLDER.dataTableId;
+      const next = { ...value, value: placeholder };
+      // cachedResultName echoes the human-readable resource name from the instance.
+      if ('cachedResultName' in next) next.cachedResultName = placeholder;
+      out[key] = next;
       continue;
     }
 
