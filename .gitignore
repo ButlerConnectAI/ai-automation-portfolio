@@ -1,0 +1,18 @@
+# Never commit raw n8n exports. They carry credential IDs, webhook IDs, Slack
+# channel IDs and Google Drive/Sheets file IDs. Run tools/sanitize-n8n-export.js
+# and commit the *.sanitized.json output instead.
+*_raw.json
+*.raw.json
+raw/
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Local noise
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
