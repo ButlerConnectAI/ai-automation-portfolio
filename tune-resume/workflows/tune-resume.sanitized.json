@@ -1,5 +1,8 @@
 {
   "name": "Tune-Resume · JD to Tailored Resume",
+  "description": null,
+  "active": false,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -13,7 +16,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000001",
       "name": "Tune-Resume Channel",
       "type": "n8n-nodes-base.slackTrigger",
       "typeVersion": 1,
@@ -74,7 +77,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000002",
       "name": "Ignore Bot & Noise",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
@@ -170,7 +173,7 @@
           "renameFallbackOutput": "pastedText"
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000003",
       "name": "Route Input Type",
       "type": "n8n-nodes-base.switch",
       "typeVersion": 3.4,
@@ -218,7 +221,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000004",
       "name": "Prepare Slack File",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -266,7 +269,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000005",
       "name": "Prepare Drive Link",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -287,7 +290,7 @@
           "waitForSubWorkflow": true
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000006",
       "name": "Convert JD File To Text",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
@@ -310,7 +313,7 @@
           "timeout": 120000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000007",
       "name": "Scrape Job Posting",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -355,7 +358,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000008",
       "name": "Scrape Usable?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
@@ -379,7 +382,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000009",
       "name": "Note Scrape Failure",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -426,7 +429,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000010",
       "name": "Normalize JD",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -461,7 +464,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000011",
       "name": "Extraction Succeeded?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
@@ -484,7 +487,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000012",
       "name": "Note Extraction Failure",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -512,7 +515,7 @@
           "mrkdwn": true
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000013",
       "name": "Acknowledge In Thread",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.5,
@@ -544,7 +547,7 @@
           ]
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000014",
       "name": "List Resume Source Files",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -598,7 +601,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000015",
       "name": "Supported Source Files",
       "type": "n8n-nodes-base.filter",
       "typeVersion": 2.3,
@@ -646,7 +649,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000016",
       "name": "Prepare Source File",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -668,7 +671,7 @@
           "waitForSubWorkflow": true
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000017",
       "name": "Convert Source File To Text",
       "type": "n8n-nodes-base.executeWorkflow",
       "typeVersion": 1.3,
@@ -683,7 +686,7 @@
       "parameters": {
         "jsCode": "const MAX_CHARS = 150000;\nconst SIMILARITY_THRESHOLD = 0.9;\n\n// Near-duplicate, not exact: the same facts file exported as a Google Doc and as\n// markdown differs in bullet glyphs, line endings and heading markers, and one copy\n// is usually a few edits behind the other. Trigram Jaccard sees through all of that.\nconst shingles = (s) => {\n  const w = (s.toLowerCase().match(/[a-z0-9]+/g) || []);\n  const set = new Set();\n  for (let i = 0; i + 2 < w.length; i++) set.add(w[i] + ' ' + w[i + 1] + ' ' + w[i + 2]);\n  return set;\n};\n\nconst jaccard = (a, b) => {\n  if (!a.size || !b.size) return 0;\n  let shared = 0;\n  for (const s of a) if (b.has(s)) shared++;\n  return shared / (a.size + b.size - shared);\n};\n\nconst skipped = [];\nconst candidates = [];\n\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const name = j.fileName || 'unnamed file';\n  const text = (j.extractedText || '').trim();\n\n  if (j.ok === false || !text) {\n    skipped.push(name + (j.error ? ' (' + j.error + ')' : ''));\n    continue;\n  }\n\n  candidates.push({ name, text, shingles: shingles(text) });\n}\n\n// Longest first so that when two copies are near-identical the fuller one survives.\ncandidates.sort((a, b) => b.text.length - a.text.length);\n\nconst kept = [];\nfor (const c of candidates) {\n  const dupeOf = kept.find(k => jaccard(k.shingles, c.shingles) >= SIMILARITY_THRESHOLD);\n  if (dupeOf) {\n    skipped.push(c.name + ' (near-duplicate of ' + dupeOf.name + ' - kept the longer copy)');\n    continue;\n  }\n  kept.push(c);\n}\n\nlet corpus = '';\nconst included = [];\n\nfor (const c of kept) {\n  const block = '\\n\\n===== SOURCE FILE: ' + c.name + ' =====\\n' + c.text;\n  if (corpus.length + block.length > MAX_CHARS) {\n    skipped.push(c.name + ' (skipped - corpus size limit reached)');\n    continue;\n  }\n  corpus += block;\n  included.push(c.name);\n}\n\nif (!corpus.trim()) {\n  throw new Error('No readable resume material was found in the Google Drive source folder. Add a Google Doc, PDF, Word doc, or .txt file to it and try again.');\n}\n\nreturn [{ json: { corpus: corpus.trim(), includedFiles: included, skippedFiles: skipped } }];"
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000018",
       "name": "Build Resume Corpus",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -702,7 +705,7 @@
           "systemPromptTemplate": "You compare a job description against a candidate's real career material. Extract only what is actually present. Every entry in matched_strengths must cite concrete evidence found in the candidate source material — if you cannot cite it, it belongs in gaps instead. Never invent employers, titles, dates, metrics, certifications or skills."
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000019",
       "name": "Analyze JD Against Profile",
       "type": "@n8n/n8n-nodes-langchain.informationExtractor",
       "typeVersion": 1.2,
@@ -729,7 +732,7 @@
           "timeout": 120000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000020",
       "name": "Analysis Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
@@ -751,13 +754,13 @@
         "messages": {
           "messageValues": [
             {
-              "message": "=You are an expert resume writer. Today is {{ $now.toFormat('yyyy-MM-dd') }}.\n\nYou rewrite a candidate's resume so it targets one specific job description, using ONLY facts that appear in the candidate source material you are given.\n\nHARD RULES — these are not stylistic preferences:\n- Never invent or alter an employer, job title, employment date, degree, certification, metric or skill. If it is not in the source material, it does not go in the resume.\n- If a must-have requirement is not evidenced in the source material, omit it entirely. Do not imply it, do not hedge it, do not pad around it. It is reported to the candidate as a gap separately.\n- You may reorder, reweight, condense, and reword real experience.\n- On terminology: you may use the posting's word for a thing ONLY where the source material already describes that same thing in equivalent terms. Matching vocabulary for a fact the candidate demonstrably has is good. Adopting the posting's vocabulary for a fact they do not have is fabrication.\n- Never copy a sentence or phrase out of the job description into a bullet. A resume that echoes the posting's own wording reads as keyword-stuffed to any recruiter who wrote that posting. Write every bullet from the candidate source material in your own plain language.\n- Lead with the experience most relevant to this posting. Prune detail that is irrelevant to this role.\n\nSTRUCTURE: name and contact line, then Professional Summary, Core Skills, Professional Experience (reverse chronological, action-verb bullets with outcomes where the source material states them), then Education and any certifications.\n\nOUTPUT FORMAT — read carefully, your raw response is written straight to a file:\n- Output semantic HTML only. Use h1 for the candidate name, then a single p for the contact line immediately after it, h2 for section headings, ul and li for bullets, and strong for employers and job titles.\n- Wrap every role header in its own p element - never leave it as loose text between a heading and a list. Exactly this shape: <p><strong>Employer</strong> - Title<br>Location &nbsp;|&nbsp; Dates</p>\n- No markdown. No code fences. No style or script tags. No commentary before or after the HTML. No explanation of what you did.\n- Single column only. No tables, no multi-column layouts, no text boxes — applicant tracking systems fail to parse them.\n- Do not use curly brace characters anywhere in the output."
+              "message": "=You are an expert resume writer. Today is {{ $now.toFormat('yyyy-MM-dd') }}.\n\nYou rewrite a candidate's resume so it targets one specific job description, using ONLY facts that appear in the candidate source material you are given.\n\nHARD RULES — these are not stylistic preferences:\n- Never invent or alter an employer, job title, employment date, degree, certification, metric or skill. If it is not in the source material, it does not go in the resume.\n- If a must-have requirement is not evidenced in the source material, omit it entirely. Do not imply it, do not hedge it, do not pad around it. It is reported to the candidate as a gap separately.\n- You may reorder, reweight, condense, and reword real experience.\n- On terminology: you may use the posting's word for a thing ONLY where the source material already describes that same thing in equivalent terms. Matching vocabulary for a fact the candidate demonstrably has is good. Adopting the posting's vocabulary for a fact they do not have is fabrication.\n- Never copy a sentence or phrase out of the job description into a bullet. A resume that echoes the posting's own wording reads as keyword-stuffed to any recruiter who wrote that posting. Write every bullet from the candidate source material in your own plain language.\n- Lead with the experience most relevant to this posting. Prune detail that is irrelevant to this role.\n- Core Skills summarises what the Professional Experience section already PROVES on the page. It is not a separate list of claims. Every Core Skills entry must be visibly demonstrable from at least one Professional Experience bullet in this same document. If a skill is real in the source material but no bullet on the page shows it, either write the bullet that shows it or drop the skill. A recruiter reads the page, not the source material.\n- Never build a Core Skills entry by welding attributes from different roles together. If one role was client-facing and a DIFFERENT role was in a regulated industry, then 'client-facing delivery in regulated industries' is a fabrication - no single role evidences it. You may qualify a skill only with attributes that co-occur within the same role.\n- A skill evidenced only by roles that ended years ago is a weak claim. Either evidence it in recent experience or state it plainly without implying it is current.\n\nSTRUCTURE: name and contact line, then Professional Summary, Core Skills, Professional Experience (reverse chronological, action-verb bullets with outcomes where the source material states them), then Education and any certifications. The Professional Summary is prose, not a list - write it as ONE paragraph of 2 to 4 full sentences inside a single p element. Never use ul or li anywhere in the summary, and never split it into multiple paragraphs. Core Skills and Professional Experience are the bulleted sections; the summary is not. The Professional Summary must never state the candidate's degree or education - no \"B.S. in Computer Science\" or any equivalent phrasing. Education appears only in the Education section.\n\nOUTPUT FORMAT — read carefully, your raw response is written straight to a file:\n- Output semantic HTML only. Use h1 for the candidate name, then a single p for the contact line immediately after it, h2 for section headings, ul and li for bullets, and strong for employers and job titles.\n- Wrap every role header in its own p element - never leave it as loose text between a heading and a list. Exactly this shape: <p><strong>Employer</strong> - Title<br>Location &nbsp;|&nbsp; Dates</p>\n- Every email address and URL must be a real anchor element, never plain text: <a href=\"mailto:REPLACE_WITH_YOUR_EMAIL\">REPLACE_WITH_YOUR_EMAIL</a>, <a href=\"https://linkedin.com/in/handle\">linkedin.com/in/handle</a>, <a href=\"https://github.com/user/repo\">github.com/user/repo</a>. This applies to the contact line AND to any URL mentioned in prose, including a portfolio link inside the summary. Keep the visible text as the bare address - do not write \"click here\".\n- No markdown. No code fences. No style or script tags. No commentary before or after the HTML. No explanation of what you did.\n- Single column only. No tables, no multi-column layouts, no text boxes — applicant tracking systems fail to parse them.\n- Do not use curly brace characters anywhere in the output."
             }
           ]
         },
         "batching": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000021",
       "name": "Write Tailored Resume",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
@@ -785,7 +788,7 @@
           "timeout": 300000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000022",
       "name": "Writer Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
@@ -826,7 +829,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000023",
       "name": "Build File Name",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -850,7 +853,7 @@
           "timeout": 60000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000024",
       "name": "Upload Resume HTML",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -883,7 +886,7 @@
           "timeout": 60000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000025",
       "name": "Convert Resume To Google Doc",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -920,7 +923,7 @@
           }
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000026",
       "name": "Export As Word",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -955,7 +958,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000027",
       "name": "Save Word To Drive",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -991,7 +994,7 @@
           }
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000028",
       "name": "Export As PDF",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -1026,7 +1029,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000029",
       "name": "Save PDF To Drive",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -1055,7 +1058,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000030",
       "name": "Delete Temp HTML",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -1081,7 +1084,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000031",
       "name": "Delete Temp Google Doc",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -1116,7 +1119,7 @@
           "mrkdwn": true
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000032",
       "name": "Post Result In Thread",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.5,
@@ -1151,7 +1154,7 @@
           "mrkdwn": true
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000033",
       "name": "Report Failure In Thread",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.5,
@@ -1171,9 +1174,9 @@
     },
     {
       "parameters": {
-        "jsCode": "const a = $('Analyze JD Against Profile').first().json.output || {};\nconst role = String(a.role_title || '').trim();\nconst location = String(a.location || '').trim();\n\n// 'Unknown Role' is the extractor's documented fallback - don't search for it literally.\nconst subject = (role && role !== 'Unknown Role') ? role : 'this job';\n\nreturn [\n  {\n    json: {\n      purpose: 'postings',\n      query: (subject + ' job description requirements responsibilities ' + location).trim().slice(0, 500),\n      scrape: true,\n      limit: 5,\n    },\n  },\n  {\n    json: {\n      purpose: 'rubric',\n      query: (subject + ' resume best practices what recruiters look for ATS keywords').slice(0, 500),\n      scrape: false,\n      limit: 5,\n    },\n  },\n];"
+        "jsCode": "const a = $('Analyze JD Against Profile').first().json.output || {};\nconst role = String(a.role_title || '').trim();\nconst location = String(a.location || '').trim();\n\n// 'Unknown Role' is the extractor's documented fallback - don't search for it literally.\nconst subject = (role && role !== 'Unknown Role') ? role : 'this job';\n\n// Scoped to ATS/job-board domains: an unscoped 'job description requirements'\n// search returns resume-advice articles, not the live postings we need to count\n// keyword demand against.\nconst boards = [\n  'site:boards.greenhouse.io',\n  'site:job-boards.greenhouse.io',\n  'site:jobs.lever.co',\n  'site:jobs.ashbyhq.com',\n  'site:wellfound.com',\n  'site:builtin.com',\n].join(' OR ');\n\nconst postingsQuery = [\n  subject,\n  '(\"responsibilities\" OR \"about the role\" OR \"requirements\")',\n  location,\n  '(' + boards + ')',\n].filter(Boolean).join(' ');\n\nreturn [\n  {\n    json: {\n      purpose: 'postings',\n      query: postingsQuery.slice(0, 500),\n      scrape: true,\n      limit: 5,\n    },\n  },\n  {\n    json: {\n      purpose: 'rubric',\n      query: (subject + ' resume best practices what recruiters look for ATS keywords').slice(0, 500),\n      scrape: false,\n      limit: 5,\n    },\n  },\n];"
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000034",
       "name": "Build Research Queries",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1193,10 +1196,16 @@
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify($json.scrape ? { query: $json.query, limit: $json.limit, scrapeOptions: { formats: ['markdown'], onlyMainContent: true } } : { query: $json.query, limit: $json.limit }) }}",
         "options": {
-          "timeout": 120000
+          "timeout": 120000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 6000
+            }
+          }
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000035",
       "name": "Firecrawl Market Search",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -1214,13 +1223,13 @@
         }
       },
       "onError": "continueRegularOutput",
-      "notes": "Reuses the same Firecrawl header-auth credential as Scrape Job Posting. Only the postings query pays for scraping. Failure is non-fatal - the critique degrades to model knowledge."
+      "notes": "Reuses the same Firecrawl header-auth credential as Scrape Job Posting. Only the postings query pays for scraping. Batched 1-per-6s: Firecrawl 429s on back-to-back search calls, and because onError=continueRegularOutput the node never throws, so retryOnFail cannot catch it - spacing the requests is the only fix that works here. Failure is non-fatal - Build Market Baseline reports it in researchErrors and the critique degrades to model knowledge."
     },
     {
       "parameters": {
-        "jsCode": "const MAX_CORPUS = 40000;\nconst MAX_RUBRIC = 8000;\n\nconst queries = $('Build Research Queries').all();\nconst results = $input.all();\nconst jd = $('Analyze JD Against Profile').first().json.output || {};\nconst keywords = (jd.keywords || []).map(k => String(k).trim()).filter(Boolean).slice(0, 25);\n\nconst webResults = (item) => {\n  const data = item && item.json && item.json.data;\n  return data && Array.isArray(data.web) ? data.web : [];\n};\n\nlet postings = [];\nlet rubrics = [];\nfor (let i = 0; i < results.length; i++) {\n  const purpose = (queries[i] && queries[i].json && queries[i].json.purpose) || (i === 0 ? 'postings' : 'rubric');\n  if (purpose === 'postings') postings = webResults(results[i]);\n  else rubrics = webResults(results[i]);\n}\n\nconst blobs = postings.map(r => [r.markdown, r.description, r.title].filter(Boolean).join(' ').toLowerCase());\nconst keywordFrequency = keywords.map(kw => ({\n  keyword: kw,\n  postingsMentioning: blobs.filter(b => b.includes(kw.toLowerCase())).length,\n  ofPostings: blobs.length,\n}));\n\nlet marketCorpus = '';\nfor (const r of postings) {\n  const body = String(r.markdown || r.description || '').trim();\n  if (!body) continue;\n  const block = '\\n\\n===== REPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTING: ' + (r.title || r.url || 'untitled') + ' =====\\n' + body;\n  if (marketCorpus.length + block.length > MAX_CORPUS) break;\n  marketCorpus += block;\n}\n\nlet rubricNotes = '';\nfor (const r of rubrics) {\n  const block = '\\n- ' + String(r.title || '').trim() + ': ' + String(r.description || '').trim();\n  if (rubricNotes.length + block.length > MAX_RUBRIC) break;\n  rubricNotes += block;\n}\n\nreturn [{\n  json: {\n    researchOk: postings.length > 0 || rubrics.length > 0,\n    postingsFound: postings.length,\n    rubricsFound: rubrics.length,\n    keywordFrequency,\n    marketCorpus: marketCorpus.trim(),\n    rubricNotes: rubricNotes.trim(),\n  },\n}];"
+        "jsCode": "const MAX_CORPUS = 40000;\nconst MAX_RUBRIC = 8000;\n\nconst queries = $('Build Research Queries').all();\nconst results = $input.all();\nconst jd = $('Analyze JD Against Profile').first().json.output || {};\nconst keywords = (jd.keywords || []).map(k => String(k).trim()).filter(Boolean).slice(0, 25);\n\nconst webResults = (item) => {\n  const data = item && item.json && item.json.data;\n  return data && Array.isArray(data.web) ? data.web : [];\n};\n\n// onError=continueRegularOutput turns a failed search into a data item, not a\n// thrown error - without this check a 429 reads as 'zero results' downstream.\nconst errorOf = (item) => {\n  const e = item && item.json && item.json.error;\n  if (!e) return null;\n  const status = e.status || e.httpCode;\n  if (status === 429) return 'rate limited by Firecrawl (429)';\n  return String(e.message || 'request failed') + (status ? ' (' + status + ')' : '');\n};\n\nlet postings = [];\nlet rubrics = [];\nconst researchErrors = [];\nfor (let i = 0; i < results.length; i++) {\n  const purpose = (queries[i] && queries[i].json && queries[i].json.purpose) || (i === 0 ? 'postings' : 'rubric');\n  const err = errorOf(results[i]);\n  if (err) {\n    researchErrors.push(purpose + ' search: ' + err);\n    continue;\n  }\n  if (purpose === 'postings') postings = postings.concat(webResults(results[i]));\n  else rubrics = rubrics.concat(webResults(results[i]));\n}\n\nconst blobs = postings.map(r => [r.markdown, r.description, r.title].filter(Boolean).join(' ').toLowerCase());\n\n// With zero postings every count is 0/0, which the critique prompt presents to the\n// model as mechanically-counted fact. Send nothing rather than meaningless zeroes.\nconst keywordFrequency = blobs.length === 0 ? [] : keywords.map(kw => ({\n  keyword: kw,\n  postingsMentioning: blobs.filter(b => b.includes(kw.toLowerCase())).length,\n  ofPostings: blobs.length,\n}));\n\nlet marketCorpus = '';\nfor (const r of postings) {\n  const body = String(r.markdown || r.description || '').trim();\n  if (!body) continue;\n  const block = '\\n\\n===== REPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTING: ' + (r.title || r.url || 'untitled') + ' =====\\n' + body;\n  if (marketCorpus.length + block.length > MAX_CORPUS) break;\n  marketCorpus += block;\n}\n\nlet rubricNotes = '';\nfor (const r of rubrics) {\n  const block = '\\n- ' + String(r.title || '').trim() + ': ' + String(r.description || '').trim();\n  if (rubricNotes.length + block.length > MAX_RUBRIC) break;\n  rubricNotes += block;\n}\n\nreturn [{\n  json: {\n    researchOk: postings.length > 0 || rubrics.length > 0,\n    postingsFound: postings.length,\n    rubricsFound: rubrics.length,\n    researchErrors,\n    keywordFrequency,\n    marketCorpus: marketCorpus.trim(),\n    rubricNotes: rubricNotes.trim(),\n  },\n}];"
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000036",
       "name": "Build Market Baseline",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1246,7 +1255,7 @@
           "timeout": 180000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000038",
       "name": "Critique Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "typeVersion": 1.3,
@@ -1267,7 +1276,7 @@
         "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"overall_score\": { \"type\": \"number\", \"description\": \"0-100. How competitive this draft is for this specific posting given the market evidence.\" },\n    \"verdict\": { \"type\": \"string\", \"description\": \"One sentence: is this a strong, adequate or weak resume for this role, and why.\" },\n    \"market_evidence\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"Concrete findings from the comparable postings and published guidance, e.g. 'Terraform appears in 5/5 comparable postings'. State explicitly if research was unavailable.\" },\n    \"strengths\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"What this draft already does well relative to the market.\" },\n    \"weaknesses\": { \"type\": \"array\", \"items\": { \"type\": \"string\" }, \"description\": \"Genuine gaps, including ones the candidate cannot fix from existing material.\" },\n    \"recommendations\": {\n      \"type\": \"array\",\n      \"minItems\": 0,\n      \"maxItems\": 8,\n      \"description\": \"Ranked by hiring impact, highest first. Each must be actionable on this draft using only the candidate source material, and each must carry a source_quote proving the claim already exists there.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"title\": { \"type\": \"string\", \"description\": \"Short imperative label, max 90 characters, e.g. 'Lead the summary with Kubernetes'.\" },\n          \"detail\": { \"type\": \"string\", \"description\": \"Exactly what to change and why, referencing the market evidence.\" },\n          \"impact\": { \"type\": \"string\", \"enum\": [\"high\", \"medium\", \"low\"] },\n          \"source_quote\": { \"type\": \"string\", \"description\": \"Verbatim text copied from the REPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL that already supports this change. Must appear character-for-character in the source material - copy it, do not paraphrase. If no such text exists, this is not a recommendation: report it under weaknesses instead.\" }\n        },\n        \"required\": [\"title\", \"detail\", \"impact\", \"source_quote\"]\n      }\n    }\n  },\n  \"required\": [\"overall_score\", \"verdict\", \"market_evidence\", \"strengths\", \"weaknesses\", \"recommendations\"]\n}",
         "autoFix": true
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000039",
       "name": "Critique Parser",
       "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
       "typeVersion": 1.3,
@@ -1280,7 +1289,7 @@
     {
       "parameters": {
         "promptType": "define",
-        "text": "=Review this resume draft before it goes to the candidate.\n\nTARGET ROLE: {{ $('Analyze JD Against Profile').first().json.output.role_title }}\nTARGET COMPANY: {{ $('Analyze JD Against Profile').first().json.output.company }}\n\nMARKET RESEARCH STATUS: {{ $json.researchOk ? ('OK - ' + $json.postingsFound + ' comparable postings and ' + $json.rubricsFound + ' resume guides retrieved') : 'UNAVAILABLE - critique from the job description and your own knowledge only, and say so plainly in market_evidence' }}\n\nKEYWORD DEMAND ACROSS REPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTINGS (counted mechanically - treat these as fact):\n{{ ($json.keywordFrequency || []).map(k => k.keyword + ': ' + k.postingsMentioning + '/' + k.ofPostings + ' postings').join('\\n') || '(no counts available)' }}\n\nPUBLISHED RESUME GUIDANCE FOUND:\n{{ $json.rubricNotes || '(none retrieved)' }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTINGS CORPUS:\n{{ ($json.marketCorpus || '(none retrieved)').replace(/[{}]/g, ' ') }}\n\nTHE JOB DESCRIPTION THIS RESUME TARGETS:\n{{ $('Normalize JD').first().json.jdText.replace(/[{}]/g, ' ') }}\n\nKNOWN GAPS - THE DRAFT OMITS THESE DELIBERATELY AND REPLACE_WITH_YOUR_SLACK_CHANNEL_ID. NEVER RECOMMEND ADDING THEM BACK:\n{{ ($('Analyze JD Against Profile').first().json.output.gaps || []).join('\\n') || '(none identified)' }}\n\nTHE RESUME DRAFT TO CRITIQUE (HTML):\n{{ $('Write Tailored Resume').first().json.text.replace(/[{}]/g, ' ') }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL - THE ONLY FACTS THAT EXIST:\n{{ $('Build Resume Corpus').first().json.corpus.replace(/[{}]/g, ' ') }}",
+        "text": "=Review this resume draft before it goes to the candidate.\n\nTARGET ROLE: {{ $('Analyze JD Against Profile').first().json.output.role_title }}\nTARGET COMPANY: {{ $('Analyze JD Against Profile').first().json.output.company }}\n\nMARKET RESEARCH STATUS: {{ $json.postingsFound > 0 ? ('OK - ' + $json.postingsFound + ' comparable postings and ' + $json.rubricsFound + ' resume guides retrieved') : ('DEGRADED - no comparable job postings were retrieved' + (($json.researchErrors || []).length ? ' (' + $json.researchErrors.join('; ') + ')' : '') + '; ' + ($json.rubricsFound || 0) + ' resume guides available. Critique from the job description and your own knowledge only, and say plainly in market_evidence that no comparable postings were available.') }}\n\nKEYWORD DEMAND ACROSS REPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTINGS (counted mechanically - treat these as fact):\n{{ ($json.keywordFrequency || []).map(k => k.keyword + ': ' + k.postingsMentioning + '/' + k.ofPostings + ' postings').join('\\n') || '(no counts available)' }}\n\nPUBLISHED RESUME GUIDANCE FOUND:\n{{ $json.rubricNotes || '(none retrieved)' }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID POSTINGS CORPUS:\n{{ ($json.marketCorpus || '(none retrieved)').replace(/[{}]/g, ' ') }}\n\nTHE JOB DESCRIPTION THIS RESUME TARGETS:\n{{ $('Normalize JD').first().json.jdText.replace(/[{}]/g, ' ') }}\n\nKNOWN GAPS - THE DRAFT OMITS THESE DELIBERATELY AND REPLACE_WITH_YOUR_SLACK_CHANNEL_ID. NEVER RECOMMEND ADDING THEM BACK:\n{{ ($('Analyze JD Against Profile').first().json.output.gaps || []).join('\\n') || '(none identified)' }}\n\nTHE RESUME DRAFT TO CRITIQUE (HTML):\n{{ $('Write Tailored Resume').first().json.text.replace(/[{}]/g, ' ') }}\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID SOURCE MATERIAL - THE ONLY FACTS THAT EXIST:\n{{ $('Build Resume Corpus').first().json.corpus.replace(/[{}]/g, ' ') }}",
         "hasOutputParser": true,
         "messages": {
           "messageValues": [
@@ -1291,7 +1300,7 @@
         },
         "batching": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000037",
       "name": "Benchmark & Critique",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
@@ -1306,9 +1315,9 @@
     },
     {
       "parameters": {
-        "jsCode": "const c = ($input.first().json || {}).output || {};\nconst recs = Array.isArray(c.recommendations) ? c.recommendations : [];\n\nconst numbered = recs.map((r, i) => {\n  const impact = String(r.impact || 'medium').toLowerCase();\n  const title = String(r.title || 'Untitled recommendation').replace(/\\s+/g, ' ').trim().slice(0, 90);\n  const quote = String(r.source_quote || '').replace(/\\s+/g, ' ').trim().slice(0, 200);\n  const detail = String(r.detail || '').trim();\n  return {\n    n: i + 1,\n    impact,\n    title,\n    sourceQuote: quote,\n    // The quote rides inside detail because Apply Approved Revisions only ever sees\n    // title + detail - it never receives the corpus, so this is its only evidence.\n    detail: quote\n      ? detail + '\\nSOURCE QUOTE (verbatim from the candidate material): \"' + quote + '\"'\n      : detail + '\\nNO SOURCE QUOTE SUPPLIED - this recommendation is unverified. Do not add any claim it implies.',\n    label: (i + 1) + '. [' + impact.toUpperCase() + '] ' + title,\n  };\n});\n\nif (!numbered.length) {\n  numbered.push({\n    n: 1,\n    impact: 'low',\n    title: 'No changes recommended',\n    sourceQuote: '',\n    detail: 'The reviewer found nothing worth changing in this draft.',\n    label: '1. [LOW] No changes recommended',\n  });\n}\n\n// Same nested shape the Fields UI produces - the JSON mode is not a flatter format.\nconst formFields = [\n  {\n    fieldLabel: 'Which recommendations should I apply?',\n    fieldType: 'checkbox',\n    fieldOptions: { values: numbered.map(r => ({ option: r.label })) },\n    requiredField: false,\n  },\n  {\n    fieldLabel: 'Anything else you want changed?',\n    fieldType: 'textarea',\n    placeholder: 'Optional - e.g. keep the 2016 helpdesk role, or cut it to one page',\n    requiredField: false,\n  },\n];\n\nconst jd = $('Analyze JD Against Profile').first().json.output || {};\nconst corpusMeta = $('Build Resume Corpus').first().json || {};\nconst norm = $('Normalize JD').first().json || {};\n\n// Everything downstream of the approval gate reads this blob out of the Data Table\n// instead of $('UpstreamNode'). n8n does not restore pre-pause run data when a\n// sendAndWait execution resumes, so cross-gate node references silently break.\nconst payload = {\n  draftHtml: $('Write Tailored Resume').first().json.text || '',\n  recommendations: numbered,\n  overallScore: c.overall_score === undefined ? null : c.overall_score,\n  verdict: c.verdict || '',\n  company: jd.company || 'Unknown Company',\n  roleTitle: jd.role_title || 'Unknown Role',\n  matchScore: jd.match_score === undefined ? null : jd.match_score,\n  matchedStrengths: (jd.matched_strengths || []).map(m => m.requirement),\n  gaps: jd.gaps || [],\n  includedFiles: corpusMeta.includedFiles || [],\n  skippedFiles: corpusMeta.skippedFiles || [],\n  slackChannel: norm.slackChannel || '',\n  threadTs: norm.threadTs || '',\n};\n\nreturn [{\n  json: {\n    overallScore: payload.overallScore,\n    verdict: payload.verdict,\n    marketEvidence: c.market_evidence || [],\n    strengths: c.strengths || [],\n    weaknesses: c.weaknesses || [],\n    recommendations: numbered,\n    recommendationCount: numbered.length,\n    recommendationSummary: ((s) => s.length > 2800 ? s.slice(0, 2800) + '\\n\\n_(truncated - full list is in the thread)_' : s)(numbered.map(r => '*' + r.label + '*\\n' + r.detail).join('\\n\\n')),\n    formJson: JSON.stringify(formFields),\n    payload: JSON.stringify(payload),\n  },\n}];"
+        "jsCode": "const c = ($input.first().json || {}).output || {};\nconst recs = Array.isArray(c.recommendations) ? c.recommendations : [];\n\nconst numbered = recs.map((r, i) => {\n  const impact = String(r.impact || 'medium').toLowerCase();\n  const title = String(r.title || 'Untitled recommendation').replace(/\\s+/g, ' ').trim().slice(0, 90);\n  const quote = String(r.source_quote || '').replace(/\\s+/g, ' ').trim().slice(0, 200);\n  const detail = String(r.detail || '').trim();\n  return {\n    n: i + 1,\n    impact,\n    title,\n    sourceQuote: quote,\n    // The quote rides inside detail because Apply Approved Revisions only ever sees\n    // title + detail - it never receives the corpus, so this is its only evidence.\n    detail: quote\n      ? detail + '\\nSOURCE QUOTE (verbatim from the candidate material): \"' + quote + '\"'\n      : detail + '\\nNO SOURCE QUOTE SUPPLIED - this recommendation is unverified. Do not add any claim it implies.',\n    label: (i + 1) + '. [' + impact.toUpperCase() + '] ' + title,\n  };\n});\n\nif (!numbered.length) {\n  numbered.push({\n    n: 1,\n    impact: 'low',\n    title: 'No changes recommended',\n    sourceQuote: '',\n    detail: 'The reviewer found nothing worth changing in this draft.',\n    label: '1. [LOW] No changes recommended',\n  });\n}\n\n// Same nested shape the Fields UI produces - the JSON mode is not a flatter format.\nconst formFields = [\n  {\n    fieldLabel: 'Which recommendations should I apply?',\n    fieldType: 'checkbox',\n    fieldOptions: { values: numbered.map(r => ({ option: r.label })) },\n    requiredField: false,\n  },\n  {\n    fieldLabel: 'Anything else you want changed?',\n    fieldType: 'textarea',\n    placeholder: 'Optional - e.g. keep the 2016 helpdesk role, or cut it to one page',\n    requiredField: false,\n  },\n];\n\nconst jd = $('Analyze JD Against Profile').first().json.output || {};\nconst corpusMeta = $('Build Resume Corpus').first().json || {};\nconst norm = $('Normalize JD').first().json || {};\n\n// Everything downstream of the approval gate reads this blob out of the Data Table\n// instead of $('UpstreamNode'). n8n does not restore pre-pause run data when a\n// sendAndWait execution resumes, so cross-gate node references silently break.\nconst payload = {\n  draftHtml: $('Write Tailored Resume').first().json.text || '',\n  recommendations: numbered,\n  overallScore: c.overall_score === undefined ? null : c.overall_score,\n  verdict: c.verdict || '',\n  company: jd.company || 'Unknown Company',\n  roleTitle: jd.role_title || 'Unknown Role',\n  matchScore: jd.match_score === undefined ? null : jd.match_score,\n  // Report the candidate's own evidence, not the posting's requirement text - the\n  // Slack label says \"evidenced strengths\" and m.requirement is the JD's wording.\n  matchedStrengths: (jd.matched_strengths || []).map(m => (m.evidence || m.requirement || '') + (m.evidence && m.requirement ? '\\n_answers: ' + m.requirement + '_' : '')),\n  gaps: jd.gaps || [],\n  includedFiles: corpusMeta.includedFiles || [],\n  skippedFiles: corpusMeta.skippedFiles || [],\n  slackChannel: norm.slackChannel || '',\n  threadTs: norm.threadTs || '',\n};\n\nreturn [{\n  json: {\n    overallScore: payload.overallScore,\n    verdict: payload.verdict,\n    marketEvidence: c.market_evidence || [],\n    strengths: c.strengths || [],\n    weaknesses: c.weaknesses || [],\n    recommendations: numbered,\n    recommendationCount: numbered.length,\n    recommendationSummary: ((s) => s.length > 2800 ? s.slice(0, 2800) + '\\n\\n_(truncated - full list is in the thread)_' : s)(numbered.map(r => '*' + r.label + '*\\n' + r.detail).join('\\n\\n')),\n    formJson: JSON.stringify(formFields),\n    payload: JSON.stringify(payload),\n  },\n}];"
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000040",
       "name": "Format Recommendations",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1326,7 +1335,7 @@
           "value": "={{ $('Normalize JD').first().json.slackChannel }}",
           "mode": "id"
         },
-        "text": "=:mag: *Resume review — {{ $('Analyze JD Against Profile').first().json.output.role_title }} at {{ $('Analyze JD Against Profile').first().json.output.company }}*\n\n*Score:* {{ $json.overallScore }}/100\n{{ $json.verdict }}\n\n*What this market actually asks for:*\n{{ ($json.marketEvidence || []).map(e => '• ' + e).join('\\n') || '• no market data retrieved' }}\n\n*Working well:*\n{{ ($json.strengths || []).map(s => '• ' + s).join('\\n') || '• none noted' }}\n\n*Weak spots:*\n{{ ($json.weaknesses || []).map(w => '• ' + w).join('\\n') || '• none noted' }}\n\n*Recommendations — tick the ones you want in the form below:*\n\n{{ $json.recommendationSummary }}",
+        "text": "=:mag: *Resume review — {{ $('Analyze JD Against Profile').first().json.output.role_title }} at {{ $('Analyze JD Against Profile').first().json.output.company }}*\n\n*Score:* {{ $('Format Recommendations').first().json.overallScore }}/100\n{{ $('Format Recommendations').first().json.verdict }}\n\n*What this market actually asks for:*\n{{ ($('Format Recommendations').first().json.marketEvidence || []).map(e => '• ' + e).join('\\n') || '• no market data retrieved' }}\n\n*Working well:*\n{{ ($('Format Recommendations').first().json.strengths || []).map(s => '• ' + s).join('\\n') || '• none noted' }}\n\n*Weak spots:*\n{{ ($('Format Recommendations').first().json.weaknesses || []).map(w => '• ' + w).join('\\n') || '• none noted' }}\n\n*Recommendations — tick the ones you want in the form below:*\n\n{{ $('Format Recommendations').first().json.recommendationSummary }}",
         "otherOptions": {
           "includeLinkToWorkflow": false,
           "thread_ts": {
@@ -1337,7 +1346,7 @@
           "mrkdwn": true
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000041",
       "name": "Post Critique Summary",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.5,
@@ -1385,7 +1394,7 @@
           }
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000042",
       "name": "Review & Approve Recommendations",
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.5,
@@ -1407,7 +1416,7 @@
       "parameters": {
         "jsCode": "// State comes from the Data Table, never from $('UpstreamNode') - n8n drops all\n// pre-pause run data when a sendAndWait execution resumes.\nconst row = $input.first().json || {};\n\nlet state = {};\ntry {\n  state = JSON.parse(row.payload || '{}');\n} catch (e) {\n  state = {};\n}\n\nif (!state.draftHtml) {\n  throw new Error('Could not restore the review state for execution ' + $execution.id + '. The resume draft is unavailable, so nothing was published.');\n}\n\nconst recs = state.recommendations || [];\n\n// The gate node itself IS restored on resume - it is the entry point - so this\n// reference is safe where pre-gate ones are not.\nconst raw = $('Review & Approve Recommendations').first().json || {};\n\n// responseType 'approval' reports the choice as a boolean. Versions differ on\n// whether it lands under .data or at the top level, so check both. Anything that\n// is not an explicit true counts as skip, which publishes the draft untouched.\nconst flag = (raw.data && raw.data.approved !== undefined) ? raw.data.approved : raw.approved;\nconst approvedAll = flag === true || flag === 'true';\n\nconst approved = approvedAll ? recs : [];\n\nreturn [{\n  json: {\n    ...state,\n    approved,\n    approvedCount: approved.length,\n    freeText: '',\n    hasChanges: approved.length > 0,\n    approvalFlag: flag === undefined ? null : flag,\n    rawFormResponse: raw,\n  },\n}];"
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000043",
       "name": "Parse Approval Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1443,7 +1452,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000044",
       "name": "Any Changes Approved?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
@@ -1459,13 +1468,13 @@
         "messages": {
           "messageValues": [
             {
-              "message": "=You are an expert resume writer applying a specific, approved set of edits to an existing resume draft. Today is {{ $now.toFormat('yyyy-MM-dd') }}.\n\nHARD RULES - these are not stylistic preferences:\n- Apply only the listed changes. Do not make unrelated 'improvements'. Anything not covered by a listed change must survive the revision unchanged in substance.\n- Your ONLY sources of fact are the draft itself and any facts quoted inside the change details. You do not have the candidate's full source material. Never invent or alter an employer, job title, employment date, degree, certification, metric or skill. If a change would require a fact you cannot see, skip that change rather than fabricating one.\n- If an instruction conflicts with what the draft says, keep what the draft says.\n\nOUTPUT FORMAT - read carefully, your raw response is written straight to a file:\n- Output semantic HTML only. Use h1 for the candidate name, then a single p for the contact line immediately after it, h2 for section headings, ul and li for bullets, and strong for employers and job titles.\n- Wrap every role header in its own p element - never leave it as loose text between a heading and a list. Exactly this shape: <p><strong>Employer</strong> - Title<br>Location &nbsp;|&nbsp; Dates</p>\n- No markdown. No code fences. No style or script tags. No commentary before or after the HTML. No explanation of what you changed.\n- Single column only. No tables, no multi-column layouts, no text boxes - applicant tracking systems fail to parse them.\n- Do not use curly brace characters anywhere in the output."
+              "message": "=You are an expert resume writer applying a specific, approved set of edits to an existing resume draft. Today is {{ $now.toFormat('yyyy-MM-dd') }}.\n\nHARD RULES - these are not stylistic preferences:\n- Apply only the listed changes. Do not make unrelated 'improvements'. Anything not covered by a listed change must survive the revision unchanged in substance.\n- Your ONLY sources of fact are the draft itself and any facts quoted inside the change details. You do not have the candidate's full source material. Never invent or alter an employer, job title, employment date, degree, certification, metric or skill. If a change would require a fact you cannot see, skip that change rather than fabricating one.\n- If an instruction conflicts with what the draft says, keep what the draft says.\n- An approved recommendation to 'surface', 'highlight' or 'emphasise' something is NOT licence to add a Core Skills entry that the Professional Experience bullets do not demonstrate. Read the draft's experience bullets first. If they already show the skill, the change is to reword or reorder a bullet. If no bullet on the page shows it, skip the change rather than adding a free-floating skill line - you do not have the source material needed to write the bullet that would justify it.\n- Never create or edit a Core Skills entry that welds attributes from two different roles into one claim (client-facing from one role, regulated industry from another). Qualify a skill only with attributes that co-occur within a single role.\n- Three exceptions to 'apply only the listed changes': every anchor element already in the draft must survive the revision with its href intact; the Professional Summary must never state the candidate's degree or education - strip that phrasing if present and never add it; and the Professional Summary must be ONE prose paragraph of 2 to 4 full sentences in a single p element - never convert it to ul or li bullets, and if the draft has it as a bulleted list, rewrite it into a paragraph.\n\nOUTPUT FORMAT - read carefully, your raw response is written straight to a file:\n- Output semantic HTML only. Use h1 for the candidate name, then a single p for the contact line immediately after it, h2 for section headings, ul and li for bullets, and strong for employers and job titles.\n- Wrap every role header in its own p element - never leave it as loose text between a heading and a list. Exactly this shape: <p><strong>Employer</strong> - Title<br>Location &nbsp;|&nbsp; Dates</p>\n- Every email address and URL must be a real anchor element, never plain text: <a href=\"mailto:REPLACE_WITH_YOUR_EMAIL\">REPLACE_WITH_YOUR_EMAIL</a>, <a href=\"https://linkedin.com/in/handle\">linkedin.com/in/handle</a>. This applies to the contact line AND to any URL mentioned in prose, including a portfolio link inside the summary.\n- No markdown. No code fences. No style or script tags. No commentary before or after the HTML. No explanation of what you changed.\n- Single column only. No tables, no multi-column layouts, no text boxes - applicant tracking systems fail to parse them.\n- Do not use curly brace characters anywhere in the output."
             }
           ]
         },
         "batching": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000045",
       "name": "Apply Approved Revisions",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "typeVersion": 1.9,
@@ -1517,7 +1526,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000046",
       "name": "Select Final Resume",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -1547,7 +1556,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000047",
       "name": "Stash Review State",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -1581,7 +1590,7 @@
         },
         "limit": 1
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000048",
       "name": "Restore Review State",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -1615,7 +1624,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000049",
       "name": "Delete Review State",
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
@@ -1652,7 +1661,7 @@
           "timeout": 30000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000050",
       "name": "Find Company Folder",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.4,
@@ -1697,7 +1706,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000051",
       "name": "Company Folder Exists?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
@@ -1723,7 +1732,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000052",
       "name": "Create Company Folder",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
@@ -1757,7 +1766,7 @@
         },
         "options": {}
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "c1000000-0000-4000-8000-000000000053",
       "name": "Resolve Output Folder",
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
@@ -1769,9 +1778,9 @@
     },
     {
       "parameters": {
-        "jsCode": "const src = $input.first().json || {};\n\n// Verified against Drive's HTML->Docs importer (see notes): single font name only,\n// styled <p> instead of headings, <hr> instead of border-bottom.\nconst F = 'Calibri';\nconst CSS = {\n  name:     'text-align:center;font-family:' + F + ';font-size:20pt;font-weight:700;color:#111111;margin:0 0 1pt 0;',\n  contact:  'text-align:center;font-family:' + F + ';font-size:9.5pt;color:#444444;margin:0 0 8pt 0;',\n  section:  'font-family:' + F + ';font-size:11pt;font-weight:700;color:#111111;margin:11pt 0 3pt 0;',\n  hr:       'margin:1pt 0 3pt 0;',\n  role:     'font-family:' + F + ';font-size:10.5pt;font-weight:700;color:#111111;margin:6pt 0 0 0;',\n  rolemeta: 'font-family:' + F + ';font-size:9pt;font-style:italic;color:#555555;margin:0 0 2pt 0;',\n  body:     'font-family:' + F + ';font-size:10pt;color:#222222;margin:0 0 3pt 0;text-align:left;',\n  ul:       'margin:0 0 3pt 0;padding-left:16pt;',\n  ol:       'margin:0 0 3pt 0;padding-left:16pt;',\n  li:       'font-family:' + F + ';font-size:10pt;color:#222222;margin:0;',\n  a:        'color:#1155cc;text-decoration:none;',\n};\n\n// Uppercase text nodes without mangling entities - &amp; must not become &AMP;.\nconst upperTextNodes = (s) => s.replace(/(^|>)([^<]+)/g, (m, pre, txt) =>\n  pre + txt.replace(/&[a-z]+;|&#\\d+;|[\\s\\S]/gi, (t) => (t.length > 1 ? t : t.toUpperCase())));\n\n// 1. Sanitize - we control the document wrapper, so drop anything the model emitted.\nlet body = String(src.resumeHtml || '')\n  .replace(/^﻿/, '')\n  .replace(/^\\s*```[a-z]*\\s*/i, '')\n  .replace(/\\s*```\\s*$/, '')\n  .replace(/<!DOCTYPE[^>]*>/gi, '')\n  .replace(/<\\/?(?:html|head|body)\\b[^>]*>/gi, '')\n  .replace(/<style\\b[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<script\\b[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<meta\\b[^>]*>/gi, '')\n  .replace(/<title\\b[\\s\\S]*?<\\/title>/gi, '')\n  .trim();\n\n// 2. Role headers can arrive as loose inline content between a heading and its <ul>.\n//    Give any such orphan run a real block element before classifying.\nbody = body.replace(\n  /(^|<\\/(?:h1|h2|h3|h4|p|ul|ol|div)>)([\\s\\S]*?)(?=<(?:ul|ol|h1|h2|h3|h4|p|div)\\b|$)/gi,\n  (m, before, run) => { const t = run.trim(); return t ? before + '<p>' + t + '</p>' : before; }\n);\n\n// 3. Classify every paragraph, splitting role headers onto their own meta line.\nconst firstH2 = body.search(/<h2\\b/i);\nbody = body.replace(/<p\\b[^>]*>([\\s\\S]*?)<\\/p>/gi, (m, inner, offset) => {\n  const t = inner.trim();\n  if (!t) return '';\n  if (firstH2 !== -1 && offset < firstH2) return '<p style=\"' + CSS.contact + '\">' + t + '</p>';\n  if (/^<strong\\b/i.test(t)) {\n    const parts = t.split(/<br\\s*\\/?>/i);\n    const head = (parts.shift() || '').trim();\n    const meta = parts.join(' ').replace(/\\s+/g, ' ').trim();\n    return '<p style=\"' + CSS.role + '\">' + head + '</p>' +\n      (meta ? '<p style=\"' + CSS.rolemeta + '\">' + meta + '</p>' : '');\n  }\n  return '<p style=\"' + CSS.body + '\">' + t + '</p>';\n});\n\n// 4. Headings become styled paragraphs; the section rule becomes a native <hr>.\nbody = body.replace(/<h1\\b[^>]*>([\\s\\S]*?)<\\/h1>/gi,\n  (m, inner) => '<p style=\"' + CSS.name + '\">' + inner.trim() + '</p>');\nbody = body.replace(/<h([234])\\b[^>]*>([\\s\\S]*?)<\\/h\\1>/gi,\n  (m, lvl, inner) => '<p style=\"' + CSS.section + '\">' + upperTextNodes(inner.trim()) +\n    '</p>');\n\n// 5. Lists and links.\nfor (const tag of ['ul', 'ol', 'li', 'a']) {\n  body = body.replace(new RegExp('<' + tag + '\\\\b([^>]*)>', 'gi'), (m, attrs) => {\n    const kept = attrs.replace(/\\s*style\\s*=\\s*\"[^\"]*\"/gi, '');\n    return '<' + tag + kept + ' style=\"' + CSS[tag] + '\">';\n  });\n}\n\nconst doc = '<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body>' + body + '</body></html>';\n\nreturn [{ json: { ...src, resumeHtml: doc } }];"
+        "jsCode": "const src = $input.first().json || {};\n\n// Verified against Drive's HTML->Docs importer (see notes): single font name only,\n// styled <p> instead of headings, <hr> instead of border-bottom.\nconst F = 'Calibri';\nconst CSS = {\n  name:     'text-align:center;font-family:' + F + ';font-size:20pt;font-weight:700;color:#111111;margin:0 0 1pt 0;',\n  contact:  'text-align:center;font-family:' + F + ';font-size:9.5pt;color:#444444;margin:0 0 8pt 0;',\n  section:  'font-family:' + F + ';font-size:11pt;font-weight:700;color:#111111;margin:11pt 0 3pt 0;',\n  hr:       'margin:1pt 0 3pt 0;',\n  role:     'font-family:' + F + ';font-size:10.5pt;font-weight:700;color:#111111;margin:6pt 0 0 0;',\n  rolemeta: 'font-family:' + F + ';font-size:9pt;font-style:italic;color:#555555;margin:0 0 2pt 0;',\n  body:     'font-family:' + F + ';font-size:10pt;color:#222222;margin:0 0 3pt 0;text-align:left;',\n  ul:       'margin:0 0 3pt 0;padding-left:16pt;',\n  ol:       'margin:0 0 3pt 0;padding-left:16pt;',\n  li:       'font-family:' + F + ';font-size:10pt;color:#222222;margin:0;',\n  a:        'color:#1155cc;text-decoration:none;',\n};\n\n// Uppercase text nodes without mangling entities - &amp; must not become &AMP;.\nconst upperTextNodes = (s) => s.replace(/(^|>)([^<]+)/g, (m, pre, txt) =>\n  pre + txt.replace(/&[a-z]+;|&#\\d+;|[\\s\\S]/gi, (t) => (t.length > 1 ? t : t.toUpperCase())));\n\n// 1. Sanitize - we control the document wrapper, so drop anything the model emitted.\nlet body = String(src.resumeHtml || '')\n  .replace(/^﻿/, '')\n  .replace(/^\\s*```[a-z]*\\s*/i, '')\n  .replace(/\\s*```\\s*$/, '')\n  .replace(/<!DOCTYPE[^>]*>/gi, '')\n  .replace(/<\\/?(?:html|head|body)\\b[^>]*>/gi, '')\n  .replace(/<style\\b[\\s\\S]*?<\\/style>/gi, '')\n  .replace(/<script\\b[\\s\\S]*?<\\/script>/gi, '')\n  .replace(/<meta\\b[^>]*>/gi, '')\n  .replace(/<title\\b[\\s\\S]*?<\\/title>/gi, '')\n  .trim();\n\n// 2. Role headers can arrive as loose inline content between a heading and its <ul>.\n//    Give any such orphan run a real block element before classifying.\nbody = body.replace(\n  /(^|<\\/(?:h1|h2|h3|h4|p|ul|ol|div)>)([\\s\\S]*?)(?=<(?:ul|ol|h1|h2|h3|h4|p|div)\\b|$)/gi,\n  (m, before, run) => { const t = run.trim(); return t ? before + '<p>' + t + '</p>' : before; }\n);\n\n// 3. Classify every paragraph, splitting role headers onto their own meta line.\nconst firstH2 = body.search(/<h2\\b/i);\nbody = body.replace(/<p\\b[^>]*>([\\s\\S]*?)<\\/p>/gi, (m, inner, offset) => {\n  const t = inner.trim();\n  if (!t) return '';\n  if (firstH2 !== -1 && offset < firstH2) return '<p style=\"' + CSS.contact + '\">' + t + '</p>';\n  if (/^<strong\\b/i.test(t)) {\n    const parts = t.split(/<br\\s*\\/?>/i);\n    const head = (parts.shift() || '').trim();\n    const meta = parts.join(' ').replace(/\\s+/g, ' ').trim();\n    return '<p style=\"' + CSS.role + '\">' + head + '</p>' +\n      (meta ? '<p style=\"' + CSS.rolemeta + '\">' + meta + '</p>' : '');\n  }\n  return '<p style=\"' + CSS.body + '\">' + t + '</p>';\n});\n\n// 4. Headings become styled paragraphs; the section rule becomes a native <hr>.\nbody = body.replace(/<h1\\b[^>]*>([\\s\\S]*?)<\\/h1>/gi,\n  (m, inner) => '<p style=\"' + CSS.name + '\">' + inner.trim() + '</p>');\nbody = body.replace(/<h([234])\\b[^>]*>([\\s\\S]*?)<\\/h\\1>/gi,\n  (m, lvl, inner) => '<p style=\"' + CSS.section + '\">' + upperTextNodes(inner.trim()) +\n    '</p>');\n\n// 5. Linkify bare emails and URLs. The writer is told to emit anchors, but the Doc\n//    import only makes text clickable if a real <a href> is there, so guarantee it here.\n//    Existing anchors and anything inside a tag are left untouched.\nconst LINKABLE = /([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,})|((?:https?:\\/\\/|www\\.)[^\\s<>\"'&]+|(?:[A-Za-z0-9-]+\\.)+(?:com|org|net|io|dev|ai|co|edu|gov|me|app)(?:\\/[^\\s<>\"'&]*)?)/gi;\nbody = body\n  .split(/(<a\\b[^>]*>[\\s\\S]*?<\\/a>|<[^>]+>)/i)\n  .map((chunk, i) => (i % 2 ? chunk : chunk.replace(LINKABLE, (m, email) => {\n    const trail = (m.match(/[.,;:)\\]]+$/) || [''])[0];\n    const core = trail ? m.slice(0, m.length - trail.length) : m;\n    if (!core) return m;\n    const href = email ? 'mailto:' + core\n      : /^https?:\\/\\//i.test(core) ? core\n      : 'https://' + core;\n    return '<a href=\"' + href + '\">' + core + '</a>' + trail;\n  })))\n  .join('');\n\n// 6. Lists and links.\nfor (const tag of ['ul', 'ol', 'li', 'a']) {\n  body = body.replace(new RegExp('<' + tag + '\\\\b([^>]*)>', 'gi'), (m, attrs) => {\n    const kept = attrs.replace(/\\s*style\\s*=\\s*\"[^\"]*\"/gi, '');\n    return '<' + tag + kept + ' style=\"' + CSS[tag] + '\">';\n  });\n}\n\nconst doc = '<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body>' + body + '</body></html>';\n\nreturn [{ json: { ...src, resumeHtml: doc } }];"
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "74de781e-c579-4f9e-84eb-3d9d0c43c864",
       "name": "Style Resume HTML",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -1783,7 +1792,16 @@
       "notes": "Injects all presentation, verified against Drive's real HTML->Docs importer. Deliberately emits styled <p> instead of <h1>/<h2>: Docs forces its Heading named-style size (18pt/24pt) onto those paragraphs and ignores inline font-size there, while a styled <p> round-trips exactly. Section rules are real <hr> elements - CSS border-bottom imports as a phantom bulleted line. Font must be a single family name; Docs does not resolve CSS font stacks."
     },
     {
+      "id": "d974e1b8-f411-47ca-88e8-de2586410598",
+      "name": "Read Doc Layout",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        7600,
+        280
+      ],
       "parameters": {
+        "method": "GET",
         "url": "=https://docs.googleapis.com/v1/documents/{{ $('Convert Resume To Google Doc').first().json.id }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "googleDriveOAuth2Api",
@@ -1791,41 +1809,41 @@
           "timeout": 60000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
-      "name": "Read Doc Layout",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        7600,
-        288
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000,
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
           "name": "Your googleDriveOAuth2Api credential"
         }
       },
+      "notes": "Docs API. Needed to locate the section-heading paragraphs by their index range before applying borders.",
       "onError": "continueRegularOutput",
-      "notes": "Docs API. Needed to locate the section-heading paragraphs by their index range before applying borders."
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     },
     {
-      "parameters": {
-        "jsCode": "const doc = $input.first().json || {};\n\n// 0.5in top/bottom, 0.6in left/right.\nconst requests = [{\n  updateDocumentStyle: {\n    documentStyle: {\n      marginTop: { magnitude: 36, unit: 'PT' },\n      marginBottom: { magnitude: 36, unit: 'PT' },\n      marginLeft: { magnitude: 43.2, unit: 'PT' },\n      marginRight: { magnitude: 43.2, unit: 'PT' },\n    },\n    fields: 'marginTop,marginBottom,marginLeft,marginRight',\n  },\n}];\n\n// Section headings are the 11pt bold all-caps paragraphs Style Resume HTML emits.\n// Name is 20pt, role headers 10.5pt, body 10pt - so size+bold is unambiguous.\nfor (const el of ((doc.body || {}).content || [])) {\n  const p = el.paragraph;\n  if (!p) continue;\n  const runs = (p.elements || []).filter(e => e.textRun);\n  if (!runs.length) continue;\n  const ts = runs[0].textRun.textStyle || {};\n  const size = ts.fontSize ? ts.fontSize.magnitude : null;\n  const text = runs.map(r => r.textRun.content).join('').replace(/\\n/g, '').trim();\n  if (!ts.bold || size !== 11 || !text || text !== text.toUpperCase()) continue;\n  requests.push({\n    updateParagraphStyle: {\n      range: { startIndex: el.startIndex, endIndex: el.endIndex },\n      paragraphStyle: {\n        borderBottom: {\n          color: { color: { rgbColor: { red: 0.6, green: 0.6, blue: 0.6 } } },\n          width: { magnitude: 1, unit: 'PT' },\n          padding: { magnitude: 2, unit: 'PT' },\n          dashStyle: 'SOLID',\n        },\n      },\n      fields: 'borderBottom',\n    },\n  });\n}\n\nreturn [{ json: { batchBody: JSON.stringify({ requests }), headingsRuled: requests.length - 1 } }];"
-      },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+      "id": "40cb7d9c-974d-4ef1-ae5c-54492558de34",
       "name": "Build Doc Style Requests",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        7744,
-        288
+        7740,
+        280
       ],
+      "parameters": {
+        "jsCode": "const doc = $input.first().json || {};\n\n// 0.5in top/bottom, 0.6in left/right.\nconst requests = [{\n  updateDocumentStyle: {\n    documentStyle: {\n      marginTop: { magnitude: 36, unit: 'PT' },\n      marginBottom: { magnitude: 36, unit: 'PT' },\n      marginLeft: { magnitude: 43.2, unit: 'PT' },\n      marginRight: { magnitude: 43.2, unit: 'PT' },\n    },\n    fields: 'marginTop,marginBottom,marginLeft,marginRight',\n  },\n}];\n\n// Section headings are the 11pt bold all-caps paragraphs Style Resume HTML emits.\n// Name is 20pt, role headers 10.5pt, body 10pt - so size+bold is unambiguous.\nfor (const el of ((doc.body || {}).content || [])) {\n  const p = el.paragraph;\n  if (!p) continue;\n  const runs = (p.elements || []).filter(e => e.textRun);\n  if (!runs.length) continue;\n  const ts = runs[0].textRun.textStyle || {};\n  const size = ts.fontSize ? ts.fontSize.magnitude : null;\n  const text = runs.map(r => r.textRun.content).join('').replace(/\\n/g, '').trim();\n  if (!ts.bold || size !== 11 || !text || text !== text.toUpperCase()) continue;\n  requests.push({\n    updateParagraphStyle: {\n      range: { startIndex: el.startIndex, endIndex: el.endIndex },\n      paragraphStyle: {\n        borderBottom: {\n          color: { color: { rgbColor: { red: 0.6, green: 0.6, blue: 0.6 } } },\n          width: { magnitude: 1, unit: 'PT' },\n          padding: { magnitude: 2, unit: 'PT' },\n          dashStyle: 'SOLID',\n        },\n      },\n      fields: 'borderBottom',\n    },\n  });\n}\n\nreturn [{ json: { batchBody: JSON.stringify({ requests }), headingsRuled: requests.length - 1 } }];"
+      },
       "notes": "Page margins plus a real paragraph border under each section heading. Drive's HTML importer cannot do either: @page is ignored, and a CSS border-bottom imports as a phantom bulleted line. Applied to the document instead."
     },
     {
+      "id": "3175eb30-d042-40e0-9bf2-1865643367ff",
+      "name": "Apply Doc Styling",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        7880,
+        280
+      ],
       "parameters": {
         "method": "POST",
         "url": "=https://docs.googleapis.com/v1/documents/{{ $('Convert Resume To Google Doc').first().json.id }}:batchUpdate",
@@ -1838,25 +1856,17 @@
           "timeout": 60000
         }
       },
-      "id": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
-      "name": "Apply Doc Styling",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.4,
-      "position": [
-        7888,
-        288
-      ],
-      "retryOnFail": true,
-      "maxTries": 3,
-      "waitBetweenTries": 2000,
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
           "name": "Your googleDriveOAuth2Api credential"
         }
       },
+      "notes": "Cosmetic - continueRegularOutput on purpose so a Docs API hiccup degrades the styling rather than losing the finished resume.",
       "onError": "continueRegularOutput",
-      "notes": "Cosmetic - continueRegularOutput on purpose so a Docs API hiccup degrades the styling rather than losing the finished resume."
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
     }
   ],
   "connections": {
@@ -2679,13 +2689,12 @@
       ]
     }
   },
-  "active": false,
   "settings": {
     "executionOrder": "v1",
-    "binaryMode": "separate",
     "saveDataErrorExecution": "all",
     "saveDataSuccessExecution": "all",
     "executionTimeout": 900,
+    "binaryMode": "separate",
     "saveExecutionProgress": true,
     "saveManualExecutions": true
   },

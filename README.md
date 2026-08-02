@@ -17,10 +17,19 @@ against comparable live postings, and comes back in-thread with proposed changes
 your approval before publishing formatted Word and PDF output to Drive.
 
 The interesting part isn't the drafting — it's the constraint that every claim must
-trace to source material, and what it took to make that hold. The
-[write-up](./tune-resume#the-bug-that-shaped-the-design) covers the failure where the
-review stage quietly reintroduced claims the writer had correctly refused to make, why
-a prompt rule didn't stop it, and the schema-level fix that did.
+trace to source material, and what it took to make that hold. The write-up covers two
+failures of that constraint. The [first](./tune-resume#the-bug-that-shaped-the-design):
+the review stage quietly reintroduced claims the writer had correctly refused to make,
+why a prompt rule didn't stop it, and the schema-level fix that did. The
+[second](./tune-resume#the-second-bug-a-rule-scoped-to-the-wrong-document): a skills
+claim with no supporting evidence anywhere on the page, because the no-fabrication rule
+was scoped to the source corpus rather than to the document a recruiter actually reads.
+
+A companion [interview loop](./tune-resume#closing-the-loop-interviewing-for-the-missing-facts)
+closes the upstream hole behind both. The pipeline always knew what your material was
+missing — it just had nowhere to put that knowledge, so it rediscovered and discarded the
+same gaps on every run. Typing `facts` in the channel now asks about them and writes your
+answers permanently back into the source material.
 
 **Stack:** n8n · OpenAI · Firecrawl · Slack · Google Drive/Docs APIs · Data Tables ·
 built with Claude Code
@@ -62,3 +71,11 @@ before the first commit, not after.
 ```bash
 node tools/sanitize-n8n-export.js path/to/export.json
 ```
+
+One gotcha worth knowing if you borrow the script: **the REST API and the editor's
+Download button do not return the same thing.** On n8n versions with the draft/publish
+model, `GET /workflows/:id` includes an `activeVersion` block holding a second full copy
+of every node plus a publish history stamped with a real user ID — roughly half the
+export by weight, and invisible if you only ever exported from the UI. The sanitizer
+drops that block along with the other instance state rather than trying to scrub it,
+since n8n only needs `name`, `nodes`, `connections` and `settings` to import.

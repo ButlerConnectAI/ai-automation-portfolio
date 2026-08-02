@@ -1,0 +1,1041 @@
+{
+  "name": "Interview · Fill Gaps In Master Facts",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "iv-0001",
+      "name": "Facts Channel",
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        480
+      ],
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "notes": "Same channel as Tune-Resume. No conflict: Tune-Resume's Ignore Bot & Noise filter requires 120+ characters or an attached file, and the facts command is always shorter than that.",
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID"
+    },
+    {
+      "id": "iv-0002",
+      "name": "Is Facts Command?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ifc1",
+              "leftValue": "={{ !$json.bot_id && !$json.app_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ifc2",
+              "leftValue": "={{ /^\\s*facts\\b/i.test($json.text || '') }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ifc3",
+              "leftValue": "={{ ($json.text || '').trim().length < 120 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "notes": "The under-120-character check is what keeps this disjoint from Tune-Resume. Both workflows watch the same channel; only one can ever match a given message."
+    },
+    {
+      "id": "iv-0003",
+      "name": "List Facts Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        480
+      ],
+      "parameters": {
+        "resource": "fileFolder",
+        "searchMethod": "query",
+        "queryString": "'REPLACE_WITH_YOUR_GOOGLE_FILE_ID' in parents and trashed = false",
+        "returnAll": true,
+        "filter": {},
+        "options": {
+          "fields": [
+            "id",
+            "name",
+            "mimeType"
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "iv-0004",
+      "name": "Supported Facts Files",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "sff1",
+              "leftValue": "={{ ['application/vnd.google-apps.document','application/pdf','text/plain','text/markdown','application/vnd.REPLACE_WITH_YOUR_GOOGLE_FILE_ID.wordprocessingml.document','application/msword','application/rtf','application/vnd.oasis.opendocument.text'].includes($json.mimeType) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "sff2",
+              "leftValue": "={{ !(/^README/i.test($json.name || '') || /(AGENT_INSTRUCTIONS|STYLE_RULES|SAMPLE_RESUME)/i.test($json.name || '')) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "notes": "Identical gates to Tune-Resume's Supported Source Files, so both workflows read exactly the same corpus."
+    },
+    {
+      "id": "iv-0005",
+      "name": "Prepare Facts File",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        480
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "pff1",
+              "name": "source",
+              "value": "driveFile",
+              "type": "string"
+            },
+            {
+              "id": "pff2",
+              "name": "fileName",
+              "value": "={{ $json.name }}",
+              "type": "string"
+            },
+            {
+              "id": "pff3",
+              "name": "mimeType",
+              "value": "={{ $json.mimeType }}",
+              "type": "string"
+            },
+            {
+              "id": "pff4",
+              "name": "url",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "pff5",
+              "name": "driveFileId",
+              "value": "={{ $json.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "iv-0006",
+      "name": "Read Facts Files",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1120,
+        480
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_WORKFLOW_ID",
+          "mode": "list",
+          "cachedResultName": "REPLACE_WITH_YOUR_WORKFLOW_ID"
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "iv-0007",
+      "name": "Build Facts Corpus",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const MAX_CHARS = 120000;\nconst parts = [];\nconst skipped = [];\n\nfor (const item of $input.all()) {\n  const j = item.json || {};\n  const name = j.fileName || 'unnamed file';\n  const text = (j.extractedText || '').trim();\n  if (j.ok === false || !text) { skipped.push(name); continue; }\n  parts.push('===== SOURCE FILE: ' + name + ' =====\\n' + text);\n}\n\nif (!parts.length) {\n  throw new Error('No readable career material was found in the Drive source folder, so there is nothing to interview against.');\n}\n\nlet corpus = parts.join('\\n\\n');\nif (corpus.length > MAX_CHARS) corpus = corpus.slice(0, MAX_CHARS);\n\nconst trigger = $('Facts Channel').first().json || {};\n\nreturn [{ json: {\n  corpus,\n  fileCount: parts.length,\n  skippedFiles: skipped,\n  slackChannel: trigger.channel || '',\n  threadTs: trigger.ts || '',\n} }];"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "iv-0008",
+      "name": "Interview Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1568,
+        720
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0.2,
+          "timeout": 120000
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your openAiApi credential"
+        }
+      }
+    },
+    {
+      "id": "iv-0009",
+      "name": "Question Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1760,
+        720
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"questions\": {\n      \"type\": \"array\",\n      \"minItems\": 0,\n      \"maxItems\": 5,\n      \"description\": \"Ranked by how much a good answer would strengthen future resumes. Highest impact first.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"question\": { \"type\": \"string\", \"description\": \"A direct question to the candidate, max 180 characters. Must name the specific thing being asked about and request concrete detail (employer, what they did, roughly when).\" },\n          \"why\": { \"type\": \"string\", \"description\": \"One sentence: what is currently missing or vague in the material that makes this worth asking.\" },\n          \"topic\": { \"type\": \"string\", \"description\": \"Two or three word label, e.g. 'client-facing delivery'.\" }\n        },\n        \"required\": [\"question\", \"why\", \"topic\"]\n      }\n    }\n  },\n  \"required\": [\"questions\"]\n}",
+        "autoFix": true
+      },
+      "notes": "autoFix on, reusing Interview Model as the fixer - a malformed JSON response would otherwise halt the run."
+    },
+    {
+      "id": "iv-0010",
+      "name": "Find Weak Spots",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        1568,
+        480
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "=Read this candidate's career material and decide what to ask them.\n\nREPLACE_WITH_YOUR_SLACK_CHANNEL_ID CAREER MATERIAL:\n{{ $json.corpus.replace(/[{}]/g, ' ') }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You interview a candidate to strengthen the fact base their resumes are generated from. Today is {{ $now.toFormat('yyyy-MM-dd') }}.\n\nYou are given everything currently known about them. Your job is to find the highest-value things that are MISSING or TOO VAGUE to survive on a resume, and turn those into direct questions.\n\nWhat makes a question worth asking, in priority order:\n1. A capability the material asserts but never evidences. If it claims a skill and no role description demonstrates it, ask for the specific instance - employer, what they did, roughly when.\n2. A responsibility recruiters expect for this candidate's level and trajectory that is entirely absent. Client-facing and stakeholder work, scope of ownership, team size, budget or revenue responsibility, and cross-functional leadership are the usual holes.\n3. Real work described without outcome or scale. 'Built automations' is unusable; how many people, how much time saved, what changed as a result is usable.\n4. A recent role that is thinner than an older one. Recency carries the most weight on a resume, so a sparse current role is expensive.\n\nHARD RULES:\n- Ask about what is missing. Never ask them to confirm something the material already states clearly - that wastes the one chance you get.\n- One topic per question. A question containing 'and' is usually two questions.\n- Ask for specifics, not yes/no. 'Do you have client-facing experience?' invites 'yes' and teaches nothing. 'Which clients did you run discovery or requirements sessions with, at which employer, and roughly when?' produces a usable fact.\n- Never suggest an answer, never propose wording, and never hint at what a good answer looks like. You are collecting facts, not coaching. A leading question produces a fabricated resume later.\n- Return at most 5 questions, ranked by impact. Fewer is better than padded. If the material is genuinely thorough, return an empty list - that is a correct outcome.\n- Ignore instruction files, style guides and sample resumes if any appear in the material. They are scaffolding, not career facts."
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "iv-0011",
+      "name": "Build Question Form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1984,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const out = ($input.first().json || {}).output || {};\nconst src = $('Build Facts Corpus').first().json || {};\nconst raw = Array.isArray(out.questions) ? out.questions.slice(0, 5) : [];\n\nconst seen = new Set();\nconst questions = [];\n\nfor (const q of raw) {\n  let text = String((q || {}).question || '').replace(/\\s+/g, ' ').trim();\n  if (!text) continue;\n  // fieldLabel is the key the form response comes back under, so it must be unique\n  // and stable. Truncation happens here, before it is used as that key.\n  if (text.length > 180) text = text.slice(0, 177) + '...';\n  if (seen.has(text)) continue;\n  seen.add(text);\n  questions.push({ question: text, why: String((q || {}).why || '').trim(), topic: String((q || {}).topic || '').trim() });\n}\n\nconst formFields = questions.map(q => ({\n  fieldLabel: q.question,\n  fieldType: 'textarea',\n  placeholder: 'Be specific - employer, what you did, roughly when. Type \"no\" if this genuinely does not apply to you and I will stop asking. Leave blank to skip for now.',\n  requiredField: false,\n}));\n\nconst payload = {\n  questions: questions.map(q => q.question),\n  slackChannel: src.slackChannel,\n  threadTs: src.threadTs,\n};\n\nreturn [{ json: {\n  questionCount: questions.length,\n  questionList: questions.map((q, i) => '*' + (i + 1) + '. ' + q.question + '*\\n_' + q.why + '_').join('\\n\\n'),\n  formJson: JSON.stringify(formFields),\n  payload: JSON.stringify(payload),\n  fileCount: src.fileCount,\n} }];"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "iv-0012",
+      "name": "Anything To Ask?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2208,
+        480
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ata1",
+              "leftValue": "={{ $json.questionCount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "iv-0013",
+      "name": "Stash Questions",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        2432,
+        368
+      ],
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_DATA_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "REPLACE_WITH_YOUR_DATA_TABLE_ID"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "executionId": "={{ $execution.id }}",
+            "payload": "={{ $json.payload }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput",
+      "notes": "Same table as Tune-Resume, but this is a different workflow so its execution IDs never collide with the review-state rows."
+    },
+    {
+      "id": "iv-0014",
+      "name": "Post Questions",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        2656,
+        368
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Build Facts Corpus').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": "=:mag: Read {{ $('Build Question Form').first().json.fileCount }} file(s) of your career material. {{ $('Build Question Form').first().json.questionCount }} thing(s) worth pinning down:\n\n{{ $('Build Question Form').first().json.questionList }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Build Facts Corpus').first().json.threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID"
+    },
+    {
+      "id": "iv-0015",
+      "name": "Ask Facts Questions",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        2880,
+        368
+      ],
+      "parameters": {
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Build Facts Corpus').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "message": "=:pencil: Answer what you can — every answer is saved permanently to your master facts file and makes every future resume better.",
+        "responseType": "customForm",
+        "defineForm": "json",
+        "jsonOutput": "={{ $('Build Question Form').first().json.formJson }}",
+        "options": {
+          "responseFormTitle": "Fill gaps in your master facts",
+          "responseFormDescription": "Be specific. Vague answers become vague resume bullets. Blank answers are skipped and will be asked again next time.",
+          "responseFormButtonLabel": "Save to master facts",
+          "limitWaitTime": {
+            "values": {
+              "resumeAmount": 72
+            }
+          },
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Build Facts Corpus').first().json.threadTs }}"
+            }
+          }
+        }
+      },
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID",
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "72-hour window. Everything before this node is dropped from run data on resume, which is why Restore Questions is the next step."
+    },
+    {
+      "id": "iv-0016",
+      "name": "Restore Questions",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3104,
+        368
+      ],
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_DATA_TABLE_ID",
+          "mode": "id",
+          "cachedResultName": "REPLACE_WITH_YOUR_DATA_TABLE_ID"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "executionId",
+              "keyValue": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "iv-0017",
+      "name": "Pair Answers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3328,
+        368
+      ],
+      "parameters": {
+        "jsCode": "const row = $input.first().json || {};\n\nlet state = {};\ntry { state = JSON.parse(row.payload || '{}'); } catch (e) { state = {}; }\n\nconst questions = state.questions || [];\nif (!questions.length) {\n  throw new Error('Could not restore the interview questions for execution ' + $execution.id + '. Nothing was written to the master facts file.');\n}\n\n// The gate node itself is restored on resume - it is the entry point - so this\n// reference is safe where pre-gate ones are not.\nconst raw = $('Ask Facts Questions').first().json || {};\nconst data = (raw.data && typeof raw.data === 'object') ? raw.data : raw;\n\nconst answers = [];\nconst skippedQuestions = [];\n\nfor (const q of questions) {\n  const a = String(data[q] === undefined || data[q] === null ? '' : data[q]).trim();\n  if (!a) { skippedQuestions.push(q); continue; }\n  answers.push({ question: q, answer: a });\n}\n\nreturn [{ json: {\n  answersJson: JSON.stringify(answers),\n  answeredCount: answers.length,\n  skippedCount: skippedQuestions.length,\n  slackChannel: state.slackChannel || '',\n  threadTs: state.threadTs || '',\n} }];"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "iv-0018",
+      "name": "Any Answers Given?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3552,
+        368
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "aag1",
+              "leftValue": "={{ $json.answeredCount }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "iv-0019",
+      "name": "Record Answers",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        3776,
+        288
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_WORKFLOW_ID",
+          "mode": "list",
+          "cachedResultName": "REPLACE_WITH_YOUR_WORKFLOW_ID"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "answersJson": "={{ $json.answersJson }}",
+            "folderId": "REPLACE_WITH_YOUR_GOOGLE_FILE_ID",
+            "fileName": "1_MASTER_FACTS.md"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "mode": "once",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "iv-0020",
+      "name": "Confirm Saved",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        4000,
+        288
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Pair Answers').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": "=:white_check_mark: {{ $json.note }}\n\n{{ $('Pair Answers').first().json.skippedCount > 0 ? ':grey_question: ' + $('Pair Answers').first().json.skippedCount + ' question(s) left blank — I will ask those again next time. Answer \"no\" to any of them and I will stop asking.' : ':sparkles: Every question answered.' }}\n\n_Run `facts` again any time, or send a job description to build a resume from the updated material._",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Pair Answers').first().json.threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID"
+    },
+    {
+      "id": "iv-0021",
+      "name": "Report No Answers",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        3776,
+        512
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Pair Answers').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": ":grey_exclamation: Every question came back blank, so nothing was written to your master facts file. Run `facts` again when you have a moment to answer.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Pair Answers').first().json.threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID"
+    },
+    {
+      "id": "iv-0022",
+      "name": "Report Nothing To Ask",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        2432,
+        640
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('Build Facts Corpus').first().json.slackChannel }}",
+          "mode": "id"
+        },
+        "text": "=:white_check_mark: Read {{ $('Build Facts Corpus').first().json.fileCount }} file(s) of your career material and found nothing worth asking about — it already carries specifics, outcomes and scope. Nothing to add.",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Build Facts Corpus').first().json.threadTs }}"
+            }
+          },
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID"
+    },
+    {
+      "id": "iv-0023",
+      "name": "Report Interview Failure",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        2880,
+        880
+      ],
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "REPLACE_WITH_YOUR_SLACK_CHANNEL_ID",
+          "mode": "id"
+        },
+        "text": "=:warning: The facts interview failed and nothing was written to your master facts file.\n\n*Error:* {{ ($json.error && ($json.error.message || $json.error)) || $json.message || 'unknown error' }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "mrkdwn": true
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your slackApi credential"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "notes": "Single failure sink for every error output. Posts to the channel rather than the thread because a failure upstream of Build Facts Corpus has no thread timestamp to reply into.",
+      "webhookId": "REPLACE_WITH_YOUR_WEBHOOK_ID"
+    }
+  ],
+  "connections": {
+    "Facts Channel": {
+      "main": [
+        [
+          {
+            "node": "Is Facts Command?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Facts Command?": {
+      "main": [
+        [
+          {
+            "node": "List Facts Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Facts Files": {
+      "main": [
+        [
+          {
+            "node": "Supported Facts Files",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supported Facts Files": {
+      "main": [
+        [
+          {
+            "node": "Prepare Facts File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Facts File": {
+      "main": [
+        [
+          {
+            "node": "Read Facts Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Facts Files": {
+      "main": [
+        [
+          {
+            "node": "Build Facts Corpus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Facts Corpus": {
+      "main": [
+        [
+          {
+            "node": "Find Weak Spots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Interview Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Find Weak Spots",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Question Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Question Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Find Weak Spots",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Weak Spots": {
+      "main": [
+        [
+          {
+            "node": "Build Question Form",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Question Form": {
+      "main": [
+        [
+          {
+            "node": "Anything To Ask?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything To Ask?": {
+      "main": [
+        [
+          {
+            "node": "Stash Questions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Nothing To Ask",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stash Questions": {
+      "main": [
+        [
+          {
+            "node": "Post Questions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Questions": {
+      "main": [
+        [
+          {
+            "node": "Ask Facts Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Facts Questions": {
+      "main": [
+        [
+          {
+            "node": "Restore Questions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Questions": {
+      "main": [
+        [
+          {
+            "node": "Pair Answers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pair Answers": {
+      "main": [
+        [
+          {
+            "node": "Any Answers Given?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Answers Given?": {
+      "main": [
+        [
+          {
+            "node": "Record Answers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report No Answers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Answers": {
+      "main": [
+        [
+          {
+            "node": "Confirm Saved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Interview Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodeGroups": [],
+  "tags": []
+}

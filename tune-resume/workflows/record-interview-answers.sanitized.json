@@ -1,0 +1,485 @@
+{
+  "name": "Record Interview Answers → Master Facts",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "id": "ria-0001",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "answersJson",
+              "type": "string"
+            },
+            {
+              "name": "folderId",
+              "type": "string"
+            },
+            {
+              "name": "fileName",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "notes": "answersJson: JSON array of {question, answer}. answer must already be final text - a confirmed negative arrives as its own wording, not as a blank."
+    },
+    {
+      "id": "ria-0002",
+      "name": "Find Master Facts File",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        400
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ \"name = '\" + ($json.fileName || '1_MASTER_FACTS.md').replace(/'/g, \"\\\\'\") + \"' and '\" + $json.folderId + \"' in parents and trashed = false\" }}"
+            },
+            {
+              "name": "fields",
+              "value": "files(id,name,mimeType)"
+            },
+            {
+              "name": "pageSize",
+              "value": "1"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "ria-0003",
+      "name": "Plain Text File Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-found",
+              "leftValue": "={{ ($json.files || [])[0] ? ($json.files || [])[0].id : '' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "cond-nodoc",
+              "leftValue": "={{ ($json.files || [])[0] ? ($json.files || [])[0].mimeType : '' }}",
+              "rightValue": "application/vnd.google-apps",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "notes": "Guards the Google-Docs case explicitly. A native Doc cannot be rewritten with a raw media upload - it needs the Docs API - so it takes the skip branch with a clear reason rather than silently corrupting the file."
+    },
+    {
+      "id": "ria-0004",
+      "name": "Download Master Facts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        288
+      ],
+      "parameters": {
+        "url": "=https://www.googleapis.com/drive/v3/files/{{ $json.files[0].id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "alt",
+              "value": "media"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "existingText"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "Read-modify-write: a media upload replaces the whole file, so the current contents must be pulled first."
+    },
+    {
+      "id": "ria-0005",
+      "name": "Append Answer Block",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        288
+      ],
+      "parameters": {
+        "jsCode": "const inp = $('When Executed by Another Workflow').first().json || {};\nconst existing = String(($input.first().json || {}).existingText || '');\n\nlet answers = [];\ntry {\n  const parsed = JSON.parse(inp.answersJson || '[]');\n  if (Array.isArray(parsed)) answers = parsed;\n} catch (e) {\n  throw new Error('answersJson was not valid JSON, so nothing was written to the master facts file: ' + e.message);\n}\n\n// Refuse to touch the file on an empty read - a transient Drive hiccup that returned\n// nothing would otherwise overwrite the whole corpus with just the answer block.\nif (!existing.trim()) {\n  throw new Error('The master facts file came back empty. Refusing to overwrite it.');\n}\n\nconst MARKER = '===== INTERVIEW ANSWERS (appended automatically) =====';\nconst today = new Date().toISOString().slice(0, 10);\n\nconst blocks = [];\nfor (const a of answers) {\n  const q = String((a || {}).question || '').replace(/\\s+/g, ' ').trim();\n  const ans = String((a || {}).answer || '').trim();\n  if (!q || !ans) continue;\n  // Same question asked again on a later run: keep the newer answer, drop the older.\n  if (existing.includes('Q: ' + q)) continue;\n  blocks.push('[' + today + '] Q: ' + q + '\\nA: ' + ans);\n}\n\nif (!blocks.length) {\n  return [{ json: { updated: false, recorded: 0, reason: 'nothing new to record', fileId: '' } }];\n}\n\nlet content = existing.replace(/\\s+$/, '');\nif (!content.includes(MARKER)) content += '\\n\\n' + MARKER;\ncontent += '\\n\\n' + blocks.join('\\n\\n') + '\\n';\n\nreturn [{ json: { updated: true, recorded: blocks.length, content, fileId: $('Plain Text File Found?').first().json.files[0].id } }];"
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "id": "ria-0006",
+      "name": "Anything New To Write?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        288
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-upd",
+              "leftValue": "={{ $json.updated }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ria-0007",
+      "name": "Save Master Facts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1344,
+        208
+      ],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://www.googleapis.com/upload/drive/v3/files/{{ $json.fileId }}?uploadType=media",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api",
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "text/markdown; charset=UTF-8",
+        "body": "={{ $json.content }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "Your googleDriveOAuth2Api credential"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "notes": "PATCH with uploadType=media replaces the file contents in place, keeping the same file ID so Drive version history holds every prior revision."
+    },
+    {
+      "id": "ria-0008",
+      "name": "Report Written",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        208
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rw1",
+              "name": "recorded",
+              "value": "={{ $('Append Answer Block').first().json.recorded }}",
+              "type": "number"
+            },
+            {
+              "id": "rw2",
+              "name": "written",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "rw3",
+              "name": "note",
+              "value": "={{ $('Append Answer Block').first().json.recorded }} answer(s) appended to the master facts file.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ria-0009",
+      "name": "Report Nothing Written",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1344,
+        480
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rn1",
+              "name": "recorded",
+              "value": "0",
+              "type": "number"
+            },
+            {
+              "id": "rn2",
+              "name": "written",
+              "value": "false",
+              "type": "boolean"
+            },
+            {
+              "id": "rn3",
+              "name": "note",
+              "value": "Every answer was already recorded in the master facts file - nothing to add.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "ria-0010",
+      "name": "Report Not Writable",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        592
+      ],
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "nw1",
+              "name": "recorded",
+              "value": "0",
+              "type": "number"
+            },
+            {
+              "id": "nw2",
+              "name": "written",
+              "value": "false",
+              "type": "boolean"
+            },
+            {
+              "id": "nw3",
+              "name": "note",
+              "value": "={{ (($json.files || [])[0] ? 'Found \"' + $json.files[0].name + '\" but it is a native Google file (' + $json.files[0].mimeType + '), which a raw media upload cannot rewrite. Convert it to a plain .md or .txt file to enable write-back.' : 'No file named \"' + ($('When Executed by Another Workflow').first().json.fileName || '1_MASTER_FACTS.md') + '\" was found in the source folder.') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "notes": "The interview answers are still used for the current run - only the permanent write-back is skipped. This branch never fails the parent."
+    }
+  ],
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Find Master Facts File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Master Facts File": {
+      "main": [
+        [
+          {
+            "node": "Plain Text File Found?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Not Writable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plain Text File Found?": {
+      "main": [
+        [
+          {
+            "node": "Download Master Facts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Not Writable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Master Facts": {
+      "main": [
+        [
+          {
+            "node": "Append Answer Block",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Not Writable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Answer Block": {
+      "main": [
+        [
+          {
+            "node": "Anything New To Write?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Not Writable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything New To Write?": {
+      "main": [
+        [
+          {
+            "node": "Save Master Facts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Nothing Written",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Master Facts": {
+      "main": [
+        [
+          {
+            "node": "Report Written",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Not Writable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodeGroups": [],
+  "tags": []
+}

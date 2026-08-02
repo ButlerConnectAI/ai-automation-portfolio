@@ -6,7 +6,8 @@ critique of the draft it wrote, a checklist of proposed changes, and a request f
 your approval. Approve what you want, and it publishes a formatted Word and PDF
 resume into a per-company folder in Google Drive.
 
-57 nodes. Built in n8n with Claude Code.
+57 nodes, plus a companion interview loop that keeps the fact base it draws from
+honest. Built in n8n with Claude Code.
 
 ## The problem it solves
 
@@ -138,6 +139,110 @@ anything not on the list, and a downstream stage that cannot verify its input wi
 launder whatever the upstream stage asserts.** Putting the evidence requirement in the
 schema rather than the prompt is what actually closed it.
 
+## The second bug: a rule scoped to the wrong document
+
+The schema fix held. Every recommendation that reached the document carried a verbatim
+quote from the candidate's own material. A later run still produced a resume with a
+Core Skills line reading *"Consulting and client-facing delivery in regulated
+industries"* — and nothing in the experience section below it supported the claim.
+
+The two most recent roles described no client work at all. The only client-facing
+evidence sat in roles that ended in 2020 and 2018, at the bottom of the page. And the
+qualifier turned out to be assembled from two different employers: *client-facing* came
+from one, *regulated industry* from another. No single role evidenced the combination.
+
+Every stage had behaved correctly by its own rules:
+
+1. **The no-fabrication rule is scoped to the corpus, not the page.** Both writer prompts
+   say the source material is the only permissible fact base — and the skill was, in
+   fact, supported somewhere in it. But a claim can be entirely true in the corpus and
+   have no bullet on the page demonstrating it. A recruiter reads the page.
+2. **"Surface X more prominently" has no lower bound.** The reviser satisfied a
+   recommendation to emphasise consulting experience the cheapest way available: it added
+   a line to a skills list. Rewriting an experience bullet would have required facts it
+   structurally cannot see, so the weakest compliant action was the only one open to it.
+
+The fixes push the constraint down to the artifact the reader actually sees:
+
+- Core Skills must be demonstrable from a Professional Experience bullet **in the same
+  document**. If a skill is real in the corpus but no bullet shows it, the writer either
+  writes that bullet or drops the skill.
+- A qualifier may only combine attributes that **co-occur within a single role**.
+  Welding *client-facing* from one employer onto *regulated* from another is fabrication
+  even when both halves are independently true.
+- The reviser now reads `surface` / `highlight` / `emphasise` as an instruction to rewrite
+  an existing bullet, and skips the change entirely when no bullet supports it.
+
+**A separate reporting bug made this much harder to see.** The Slack summary headed
+*"Evidenced strengths I led with"* was printing each match's `requirement` field — the
+job posting's own wording — instead of its `evidence` field, the candidate's actual fact.
+The resume was being built from the right data the whole time; the report describing it
+was reading the wrong column, so a working pipeline looked like it had ignored the source
+material entirely. **A report that misdescribes correct output costs exactly as much
+trust as a real defect, and is harder to find because the artifact is fine.**
+
+The second lesson, then: **a constraint is only as strong as the document it is scoped
+to.** Anchoring "no unsupported claims" to the corpus left the page unguarded, because
+the page is a lossy projection of the corpus and the guarantee did not survive the
+projection.
+
+## Closing the loop: interviewing for the missing facts
+
+Both bugs above are downstream symptoms of one upstream fact: the pipeline could detect
+what was missing but had no way to ask for it. `Analyze JD Against Profile` produces a
+`gaps` array on every run, the writer is told to omit anything on it, and the candidate
+sees the list only in the final Slack message — after the resume is already published.
+Nothing ever flowed back. The same gap was rediscovered, reported and discarded on every
+subsequent run.
+
+A conversational assistant closes this trivially: it notices the hole and asks. A
+one-shot pipeline cannot, so the interview runs as its own workflow.
+
+```mermaid
+flowchart TD
+    A["Slack message: facts"] --> B{Command filter<br/>under 120 chars}
+    B --> C[Read Drive source material<br/>same corpus the resumes use]
+    C --> D[Find weak spots<br/>vague claims, absent scope, thin recent roles]
+    D --> E{Anything worth asking?}
+    E -->|no| F[Report nothing to ask]
+    E -->|yes| G[(Stash questions<br/>Data Table)]
+    G --> H[Post questions + form]
+    H -.execution pauses.-> I[Restore questions]
+    I --> J{Any answers given?}
+    J -->|no| K[Report nothing written]
+    J -->|yes| L[Record Interview Answers<br/>sub-workflow]
+    L --> M[Append to master facts<br/>read-modify-write on Drive]
+    M --> N[Confirm in thread]
+```
+
+**Why it is a separate workflow rather than a stage in the pipeline.** The obvious design
+puts the interview between analysis and drafting, so the writer has the answers before it
+writes. That placement is correct and was rejected anyway. n8n drops all pre-pause run
+data when a `sendAndWait` execution resumes — the same constraint the Data Table stash
+already works around for the approval gate. Inserting a *second* pause upstream would
+break every `$('UpstreamNode')` reference that crosses it, which is most of the second
+half of a 57-node workflow. The cost of correct placement was a refactor of roughly half
+the pipeline; the cost of separate placement is that answers improve the *next* run
+rather than the current one. For a fact base that is written once and read on every
+application, that trade is heavily one-sided.
+
+**Both workflows watch the same Slack channel without conflicting.** The pipeline's noise
+filter already required 120+ characters or a file attachment, because a job description is
+never shorter than that. The interview's filter requires the message be *under* 120
+characters. The two predicates are provably disjoint, so a command and a job posting can
+share one channel with no router between them and no change to the existing workflow.
+
+**The questions are constrained against leading the witness.** *"Do you have client-facing
+experience?"* invites a yes and teaches the system nothing. The prompt requires questions
+that name a specific missing thing and ask for employer, action and rough date — and
+forbids suggesting an answer, proposing wording, or hinting at what a good answer looks
+like. An interview that coaches produces a fabricated resume two stages later.
+
+The write-back is read-modify-write against the same Drive file ID, so version history
+retains every prior revision. It refuses to write when the read comes back empty — a
+transient Drive failure would otherwise replace an entire career history with a handful
+of interview answers.
+
 ## Running it
 
 The published export has all instance-specific identifiers replaced with
@@ -154,14 +259,29 @@ The published export has all instance-specific identifiers replaced with
 
 Then:
 
-1. Import `workflows/tune-resume.sanitized.json`.
+1. Import the three exports in `workflows/`:
+
+   | File | What it is |
+   |---|---|
+   | `tune-resume.sanitized.json` | The main pipeline — job description in, resume out |
+   | `interview-fill-gaps.sanitized.json` | The `facts` interview loop |
+   | `record-interview-answers.sanitized.json` | Sub-workflow: appends answers to the master facts file |
+
 2. Replace every `REPLACE_WITH_YOUR_*` placeholder — credentials, the Slack channel ID,
-   the Drive source folder ID, the output folder ID, and the sub-workflow reference.
+   the Drive source folder ID, the output folder ID, and the sub-workflow references.
+   Both the interview and the pipeline reference `Convert File To Text`; the interview
+   additionally references `Record Interview Answers`.
 3. Put your career source material in the Drive source folder. Files named `README*`,
    `AGENT_INSTRUCTIONS*`, `STYLE_RULES*` or `SAMPLE_RESUME*` are deliberately excluded
    from the corpus — that filter exists so guidance-to-self doesn't get read as career
    fact and end up on the resume.
-4. Activate, and drop a job posting in the channel.
+4. Activate all three, then:
+   - type `facts` in the channel to be interviewed about what your material is missing;
+   - drop a job posting in the same channel to get a resume.
+
+Both workflows listen to the same channel. The pipeline ignores anything under 120
+characters and the interview ignores anything over it, so no router is needed between
+them.
 
 ## Stack
 
