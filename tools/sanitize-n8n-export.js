@@ -48,6 +48,29 @@ const PLACEHOLDER = {
 // key they sit under, not by their shape.
 const N8N_RESOURCE_KEYS = new Set(['workflowId', 'dataTableId']);
 const STRUCTURAL_KEYS = new Set(['id', 'type']);
+
+// Instance state that is not part of the workflow definition and must never ship.
+// The draft/publish keys matter more than they look: the REST API (unlike the editor's
+// Download button) returns an `activeVersion` block holding a SECOND full copy of every
+// node plus a publish history stamped with a real n8n `userId`. On a 57-node workflow
+// that is half the export by weight, and it re-introduces identifiers the walk below
+// has already scrubbed out of the draft copy. Deleting the block is correct rather than
+// merely cheaper: n8n only needs name/nodes/connections/settings to import.
+const INSTANCE_STATE_KEYS = [
+  'id',
+  'versionId',
+  'meta',
+  'pinData',
+  'staticData',
+  'shared',
+  'triggerCount',
+  'activeVersion',
+  'activeVersionId',
+  'sourceWorkflowId',
+  'versionCounter',
+  'createdAt',
+  'updatedAt',
+];
 const isIdShaped = (s) =>
   /^[A-Za-z0-9_-]{16,}$/.test(s) || /^C[A-Z0-9]{8,}$/.test(s);
 
@@ -154,6 +177,16 @@ function walk(node) {
       }
     }
 
+    // The same keys also occur as bare strings rather than resource-locator objects
+    // (the publish payload carries `workflowId` that way). A 16-char n8n id clears no
+    // shape rule here — GOOGLE_ID needs 25 — so without this branch it passes straight
+    // through untouched.
+    if (N8N_RESOURCE_KEYS.has(key) && typeof value === 'string') {
+      note(`${key} ref`, value);
+      out[key] = key === 'workflowId' ? PLACEHOLDER.workflowId : PLACEHOLDER.dataTableId;
+      continue;
+    }
+
     // Sub-workflow and data-table references point at resources on the same instance.
     if (N8N_RESOURCE_KEYS.has(key) && value && typeof value === 'object' && 'value' in value) {
       note(`${key} ref`, value.value);
@@ -186,13 +219,8 @@ function main() {
 
   // Node ids are canvas-local and harmless; the top-level workflow id is not.
   const cleaned = walk(source);
-  delete cleaned.id;
-  delete cleaned.versionId;
-  delete cleaned.meta;
-  delete cleaned.pinData;
-  delete cleaned.staticData;
-  delete cleaned.shared;
-  delete cleaned.triggerCount;
+  const dropped = INSTANCE_STATE_KEYS.filter((k) => k in cleaned);
+  for (const key of dropped) delete cleaned[key];
   cleaned.active = false;
 
   fs.writeFileSync(outputPath, JSON.stringify(cleaned, null, 2) + '\n', 'utf8');
@@ -209,6 +237,8 @@ function main() {
     console.log(`  ${String(n).padStart(4)}  ${kind}`);
   }
   if (!findings.length) console.log('  (nothing matched — double-check the input is a real export)');
+
+  if (dropped.length) console.log(`Dropped instance state: ${dropped.join(', ')}`);
 
   if (review.length) {
     console.log('\nNEEDS A HUMAN LOOK (not auto-replaced — too ambiguous to do safely):');
